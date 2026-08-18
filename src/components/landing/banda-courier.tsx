@@ -76,7 +76,7 @@ export function BandaCourier() {
     <section
       ref={cajaRef}
       id="courier"
-      className="courier-banda relative overflow-hidden bg-[var(--banda-fondo)]"
+      className="courier-banda relative overflow-hidden rounded-3xl bg-[var(--banda-fondo)]"
     >
       {/* El remolino va primero y bien atrás: es el color moviéndose, y todo lo
           demás se apoya encima. */}

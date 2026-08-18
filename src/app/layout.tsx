@@ -32,12 +32,19 @@ export default function RootLayout({
       <head>
         {/*
          * Aplica el tema guardado ANTES del primer pintado. Si esto corriera en
-         * un efecto de React, el usuario en modo noche vería un destello blanco
-         * en cada carga. Sin preferencia guardada se respeta la del sistema.
+         * un efecto de React, alguien en modo noche vería un destello blanco en
+         * cada carga.
+         *
+         * Ya no sigue la preferencia del sistema: este sitio no tiene ningún
+         * botón para cambiar de tema, así que a quien le tocaba oscuro por su
+         * sistema operativo quedaba con el fondo negro y sin forma de volver a
+         * claro. Por eso ahora el sitio arranca siempre en claro, salvo que en
+         * el futuro se agregue un selector propio y alguien elija oscuro a
+         * mano —ese `localStorage` queda funcionando para ese caso—.
          */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("tema");if(t==="oscuro"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.classList.add("dark")}}catch(e){}})()`,
+            __html: `(function(){try{if(localStorage.getItem("tema")==="oscuro"){document.documentElement.classList.add("dark")}}catch(e){}})()`,
           }}
         />
       </head>
