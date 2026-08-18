@@ -813,9 +813,9 @@ export function Landing() {
           </div>
         </section>
 
-        <InstagramPosts />
-
         <MapaOficina />
+
+        <InstagramPosts />
 
         {/* ── Pie ── */}
         <footer className="relative border-t border-border/60">
