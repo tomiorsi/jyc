@@ -332,12 +332,19 @@ body::before {
 }
 
 /* Reveal on scroll */
+/* El tiempo y la curva viven en una variable porque la aparición hay que
+   repetirla en `.tarjeta-viva` —ver ahí el porqué— y dos copias sueltas del
+   mismo número se despegan a la primera que alguien toque una. */
+:root {
+  --aparicion: 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .landing-reveal {
   opacity: 0;
   transform: translateY(18px);
   transition:
-    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity var(--aparicion),
+    transform var(--aparicion);
 }
 .landing-reveal.is-visible {
   opacity: 1;
@@ -503,6 +510,386 @@ body::before {
 
 @media (prefers-reduced-motion: reduce) {
   .borde-girando::before {
+    animation: none;
+  }
+}
+
+/* ─────────────────── Fondo continuo de la landing ───────────────────
+ * La página es una sola superficie, no una pila de secciones. Antes cada
+ * bloque pintaba su propio fondo y su propia línea divisoria, y al scrollear
+ * se leía como si fueran páginas distintas pegadas una atrás de la otra.
+ *
+ * Ahora ninguna sección pinta fondo: todo lo que se ve detrás de las tarjetas
+ * son estas dos capas, y las dos cubren el alto del documento —no el de la
+ * pantalla—, así el color acompaña el scroll en vez de reaparecer de cero en
+ * cada bloque.
+ *
+ * `trama-mapa` continúa la grilla de puntos del mapamundi del hero hasta el
+ * pie: es lo que ata visualmente el resto de la página con la portada. Arranca
+ * desvanecida para no superponerse con los puntos del propio mapa, que tienen
+ * su propia densidad y juntos harían muaré.
+ */
+.trama-mapa {
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    color-mix(in srgb, var(--muted) 18%, transparent) 1px,
+    transparent 0
+  );
+  background-size: 22px 22px;
+  --desvanecido: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 240px,
+    #000 calc(100% - 180px),
+    transparent 100%
+  );
+  -webkit-mask-image: var(--desvanecido);
+  mask-image: var(--desvanecido);
+}
+
+/*
+ * Las manchas del acento. Van repartidas a lo largo del documento y alternando
+ * lado: al bajar, el naranja cruza de un margen al otro en vez de prenderse y
+ * apagarse por sección.
+ *
+ * El resplandor es un degradado radial y no un `filter: blur()`. Con blur
+ * quedaba mejor de cerca, pero cuatro cajas desenfocadas de 500 px sobre un
+ * documento de tres mil y pico, más el desenfoque de cada tarjeta, dejaban al
+ * compositor sin aire y el scroll se trababa. El degradado se dibuja de una
+ * sola pasada y se apaga solo en los bordes, así que además no necesita que
+ * nadie lo recorte: con blur, el recorte del contenedor cortaba el halo al ras
+ * y dejaba una costura horizontal justo donde termina el hero.
+ *
+ * El ciclo de veinte segundos es lento de más a propósito: solo anima
+ * `transform` y `opacity` —lo único que el compositor resuelve sin repintar—
+ * para que el movimiento se registre de reojo y nunca compita con el texto.
+ */
+.mancha {
+  position: absolute;
+  border-radius: 9999px;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--accent) 28%, transparent),
+    color-mix(in srgb, var(--accent) 12%, transparent) 55%,
+    transparent 100%
+  );
+  animation: mancha-respirar 20s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes mancha-respirar {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translate3d(0, -40px, 0) scale(1.14);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mancha {
+    animation: none;
+  }
+}
+
+/* ─────────────────── Vida en las secciones de abajo ───────────────────
+ * Todo lo de acá se apaga entero con `prefers-reduced-motion` al final del
+ * bloque: son adornos, no información, y para quien pidió menos movimiento no
+ * se pierde nada.
+ */
+
+/*
+ * La regla que acompaña el título de cada línea de servicio se dibuja sola
+ * cuando el bloque aparece, de izquierda a derecha. Es el mismo gesto de
+ * subrayar algo a mano después de escribirlo.
+ */
+.regla-bloque {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
+}
+
+.landing-reveal.is-visible .regla-bloque {
+  transform: scaleX(1);
+}
+
+/*
+ * Las tarjetas se levantan al pasar por encima.
+ *
+ * Dos motivos para no reusar `.hover-lift`, que ya existe más arriba y hace
+ * justo esto. Uno: vive dentro de `@layer utilities`, y el CSS sin capa —como
+ * `.landing-reveal`— le gana siempre en la cascada, así que la elevación no
+ * llegaba a aplicarse. Dos: `.hover-lift` mueve la tarjeta con `transform`, que
+ * es la misma propiedad con la que la aparición al scrollear la desliza hacia
+ * arriba; una pisaba a la otra.
+ *
+ * `translate` es una propiedad aparte que se compone con `transform` en vez de
+ * reemplazarlo. Así la elevación y la aparición conviven, y cada una lleva su
+ * propio tiempo: la aparición es lenta porque acompaña al scroll, y esta tiene
+ * que responder al mouse en el acto.
+ */
+.tarjeta-viva {
+  /* `transition` no se suma entre reglas: la última que gana la cascada pisa la
+     lista entera de la anterior. Como esta clase siempre viaja junto a
+     `.landing-reveal` y se declara después, tiene que repetir sus dos
+     transiciones o las tarjetas dejarían de aparecer al scrollear: saltarían
+     puestas. */
+  transition:
+    opacity var(--aparicion),
+    transform var(--aparicion),
+    translate 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
+}
+
+.tarjeta-viva:hover {
+  translate: 0 -3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tarjeta-viva,
+  .tarjeta-viva:hover {
+    transition: none;
+    translate: none;
+  }
+}
+
+/*
+ * El ícono de cada tarjeta responde al hover con un salto corto y una
+ * inclinación. El `cubic-bezier` se pasa de 1 a propósito: sobrepasa el tamaño
+ * final y vuelve, que es lo que hace que se lea como un rebote y no como un
+ * zoom.
+ */
+.icono-salton {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.group:hover .icono-salton {
+  transform: scale(1.14) rotate(-8deg);
+}
+
+/*
+ * Anillo que sale del botón de WhatsApp cada tanto. Va en un elemento aparte
+ * y detrás del botón: como `::before` quedaba pintado ENCIMA del fondo verde
+ * —dentro de un contexto de apilamiento, los hijos con z-index negativo se
+ * dibujan después del fondo del padre, no antes— y le tapaba el ícono.
+ */
+.pulso-wa {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: #25d366;
+  animation: pulso-wa 3s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pulso-wa {
+  0% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  65%,
+  100% {
+    transform: scale(1.85);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .regla-bloque {
+    transform: scaleX(1);
+    transition: none;
+  }
+  .icono-salton,
+  .group:hover .icono-salton {
+    transition: none;
+    transform: none;
+  }
+  .pulso-wa {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* ─────────────────── Mapa de la oficina ───────────────────
+ * El plano de calles va acostado en perspectiva. La inclinación la escribe el
+ * scroll desde el componente; acá vive lo que no cambia: el color del trazo, el
+ * difuminado de los bordes y la chapa que marca el lugar.
+ */
+
+/* `transform` lo pisa el componente en cada cuadro. Este es el valor de
+   arranque, y también el que queda si el JavaScript no llega a correr: el mapa
+   se ve igual, apenas sin el giro. */
+/* Cuánto se corre el plano hacia abajo dentro del recuadro. En pantalla ancha
+   el texto va a la izquierda y el mapa respira a la derecha, así que no hace
+   falta moverlo. En angosta el texto ocupa todo el ancho y se le monta encima
+   al centro del plano —justo donde está la oficina—, así que el plano baja para
+   dejarle la parte de arriba al texto. Lo usan el plano y la chapa con el mismo
+   valor: si se movieran distinto, el punto dejaría de marcar la dirección. */
+:root {
+  --mapa-desvio: 0px;
+}
+
+@media (max-width: 639px) {
+  :root {
+    --mapa-desvio: 150px;
+  }
+}
+
+.mapa-plano {
+  /* El centrado va acá dentro y no en una clase aparte: el componente reescribe
+     `transform` entero en cada cuadro, y lo que no esté en este string se
+     pierde apenas corre el primer cuadro. */
+  top: calc(50% + var(--mapa-desvio));
+  transform: translate(-50%, -50%) perspective(1500px) rotateX(46deg)
+    rotateZ(-12deg) scale(1.02);
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.mapa-chapa {
+  top: calc(50% + var(--mapa-desvio));
+}
+
+/* El trazo es casi transparente a propósito: el mapa es fondo, y arriba tiene
+   que poder leerse un título. En oscuro no alcanza con bajarle la opacidad
+   —sobre negro desaparece—, así que sube. */
+.mapa-calles {
+  stroke: color-mix(in srgb, var(--foreground) 30%, transparent);
+}
+
+.dark .mapa-calles {
+  stroke: color-mix(in srgb, var(--foreground) 34%, transparent);
+}
+
+.mapa-rotulos {
+  fill: color-mix(in srgb, var(--foreground) 38%, transparent);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+}
+
+/*
+ * Difuminado de los bordes. El plano en perspectiva llega hasta el borde del
+ * recuadro y sin esto se vería el corte recto donde termina el dibujo. El
+ * degradado de la izquierda además le hace lugar al texto: por eso es más
+ * cerrado de ese lado.
+ */
+.mapa-velo {
+  background:
+    linear-gradient(
+      to right,
+      var(--surface) 0%,
+      color-mix(in srgb, var(--surface) 82%, transparent) 38%,
+      transparent 68%
+    ),
+    radial-gradient(
+      120% 90% at 50% 50%,
+      transparent 45%,
+      color-mix(in srgb, var(--surface) 90%, transparent) 100%
+    );
+}
+
+/* En pantalla angosta el texto ocupa todo el ancho, así que el degradado
+   lateral no alcanza a despejarlo: el plano le pasaba por encima a las
+   palabras. Acá el velo se vuelve vertical —tapa arriba, donde va el texto, y
+   se abre abajo, donde el mapa se puede ver tranquilo—. */
+@media (max-width: 639px) {
+  .mapa-velo {
+    background: linear-gradient(
+      to bottom,
+      var(--surface) 0%,
+      color-mix(in srgb, var(--surface) 92%, transparent) 52%,
+      color-mix(in srgb, var(--surface) 45%, transparent) 78%,
+      transparent 100%
+    );
+  }
+}
+
+/*
+ * La chapa del lugar: un punto sólido con un anillo que sale cada tanto. Es lo
+ * único quieto del recuadro, y ese contraste contra el plano que gira es lo que
+ * lo hace leer como «acá».
+ */
+.mapa-chapa {
+  background: var(--accent);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--surface) 85%, transparent),
+    0 6px 18px -4px var(--ring);
+}
+
+.mapa-chapa::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  border: 2px solid var(--accent);
+  animation: mapa-onda 2.8s ease-out infinite;
+}
+
+@keyframes mapa-onda {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+  70%,
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mapa-chapa::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* ─────────────────── El sello del estudio ───────────────────
+ * Va inclinado, como un sello puesto a mano y no un logo alineado a la grilla.
+ * El aro de texto gira despacio; el centro queda quieto, porque el número es
+ * el dato y tiene que poder leerse.
+ */
+.sello {
+  transform: rotate(-7deg);
+}
+
+.sello-trazo {
+  stroke: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.sello-leyenda,
+.sello-pie {
+  fill: color-mix(in srgb, var(--accent-text) 85%, transparent);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+}
+
+.sello-cifra {
+  fill: var(--accent-text);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* El giro se aplica sobre el grupo del texto, con el origen en el centro del
+   dibujo: sin `transform-box: fill-box` el navegador rota alrededor del origen
+   del SVG y la leyenda se va de la pantalla. */
+.sello-giro {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sello-girar 34s linear infinite;
+}
+
+@keyframes sello-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sello-giro {
     animation: none;
   }
 }

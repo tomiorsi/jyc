@@ -1,33 +1,41 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
+  ArrowLeftRight,
   ArrowRight,
-  CheckCircle2,
-  Circle,
-  ClipboardCheck,
-  Container,
+  BadgeCheck,
+  Calculator,
+  Car,
   ChevronDown,
-  FileCheck2,
+  Cpu,
+  Factory,
   FileText,
-  MessageCircle,
+  FlaskConical,
+  Handshake,
+  Landmark,
   Plane,
+  Receipt,
+  Scale,
+  Search,
+  Shirt,
+  ShoppingBag,
   Ship,
-  ShieldCheck,
+  Tags,
   Truck,
+  UtensilsCrossed,
+  Warehouse,
 } from "lucide-react";
 import { Brand } from "@/components/brand";
+import { InstagramPosts } from "@/components/landing/instagram-posts";
+import { MapaOficina } from "@/components/landing/mapa-oficina";
 
 /**
- * Adónde manda cada botón de contacto.
- *
- * ⚠️ PONER EL DATO REAL DEL ESTUDIO. En el portal estos botones iban a
- * /reunion, que es un formulario de la app; acá esa página no existe.
- * Puede ser un WhatsApp (https://wa.me/549…) o un mailto:.
+ * Adónde manda cada botón de contacto: el WhatsApp del estudio,
+ * +54 9 11 3055-9538. wa.me lo quiere sin signos ni espacios.
  */
-const CONTACTO = "https://wa.me/54900000000";
+const CONTACTO = "https://wa.me/5491130559538";
 import { WorldRoutes } from "@/components/landing/world-routes";
-import { InstagramPosts } from "@/components/landing/instagram-posts";
 
 /* ───────────────────────── Reveal on scroll ───────────────────────── */
 
@@ -217,50 +225,349 @@ function TransportOrb() {
 
 /* ───────────────────────── Datos de las secciones ───────────────────────── */
 
-const PASOS = [
+/** Cada tarjeta de servicio o de rubro: un ícono, un nombre y qué implica. */
+type Item = {
+  Icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  titulo: string;
+  texto: string;
+};
+
+/**
+ * Las dos líneas de trabajo del estudio. La separación no es decorativa: son
+ * dos servicios que se contratan por separado y a públicos distintos —el
+ * despacho lo necesita todo el que importa; el agente de compras, solo el que
+ * además quiere que le busquen el proveedor—.
+ */
+const LIBERACIONES: Item[] = [
   {
-    Icon: FileCheck2,
-    titulo: "Apertura y cotización",
+    Icon: ArrowLeftRight,
+    titulo: "Importación y exportación",
     texto:
-      "Nos mandás la proforma o el pedido. Cotizamos tributos y logística y te lo llevás en un PDF claro, antes de comprometer un dólar.",
+      "El proceso completo, de la apertura del legajo a la liberación de la mercadería.",
   },
   {
-    Icon: ClipboardCheck,
-    titulo: "Documentación validada",
+    Icon: Tags,
+    titulo: "Clasificación arancelaria",
     texto:
-      "Factura, packing y transporte se cruzan entre sí. Cualquier inconsistencia salta antes de llegar a la Aduana, no después.",
+      "Definimos la posición NCM de cada producto y la sostenemos con la documentación técnica.",
   },
   {
-    Icon: ShieldCheck,
-    titulo: "Oficialización",
+    Icon: FileText,
+    titulo: "Documentación aduanera",
     texto:
-      "Clasificación cerrada, SIM oficializado y tributos por VEP. Te avisamos el canal asignado apenas sale.",
+      "Armamos y presentamos el legajo: factura, packing list, transporte, certificados y permisos.",
   },
   {
-    Icon: Truck,
-    titulo: "Retiro y entrega",
+    Icon: Landmark,
+    titulo: "Representación aduanera",
     texto:
-      "Gestionamos la liberación y coordinamos el retiro. Seguís cada movimiento desde tu portal, en tiempo real.",
+      "Actuamos en tu nombre ante la Aduana y resolvemos las observaciones que aparezcan.",
+  },
+  {
+    Icon: Scale,
+    titulo: "Asesoría en Incoterms",
+    texto:
+      "Elegimos con vos el término que mejor reparte costos y riesgos en cada operación.",
+  },
+  {
+    Icon: Receipt,
+    titulo: "Gestión de pagos aduaneros",
+    texto:
+      "Liquidamos derechos, tasas e impuestos, y emitimos los VEP a tiempo.",
+  },
+  {
+    Icon: Warehouse,
+    titulo: "Control de inventarios",
+    texto:
+      "Mercadería en depósito fiscal y zona franca, con el stock conciliado contra lo declarado.",
+  },
+  {
+    Icon: Calculator,
+    titulo: "Costeo y factibilidad",
+    texto:
+      "El costo puesto en tu depósito, calculado antes de que compres.",
   },
 ];
 
-const PIPELINE = [
-  "Recibida",
-  "En preparación",
-  "Presentada en Aduana",
-  "Canal asignado",
-  "Liberada",
-  "Entregada",
+const COMPRAS: Item[] = [
+  {
+    Icon: Search,
+    titulo: "Búsqueda de proveedores",
+    texto:
+      "Proveedores en origen, evaluados con referencias y muestras antes de avanzar.",
+  },
+  {
+    Icon: Handshake,
+    titulo: "Negociación de contratos",
+    texto:
+      "Precio, plazo y garantía cerrados para que un incumplimiento no te deje sin respaldo.",
+  },
+  {
+    Icon: Ship,
+    titulo: "Logística internacional",
+    texto:
+      "Elegimos la vía que mejor equilibra costo y tiempo, y coordinamos el transporte.",
+  },
+  {
+    Icon: BadgeCheck,
+    titulo: "Auditoría de proveedores",
+    texto:
+      "Inspección de calidad en origen, antes del embarque y no cuando ya llegó.",
+  },
 ];
 
-/** Documentos reales de la operación (tipos que maneja el portal). */
-const DOCS_MOCK = [
-  { label: "Factura comercial", done: true },
-  { label: "Packing list", done: true },
-  { label: "Documento de transporte", done: true },
-  { label: "Certificado de origen", done: true },
-  { label: "Despacho SIM", done: false },
+/** Rubros con los que el estudio ya trabajó. Cada uno tiene su propia vuelta. */
+const RUBROS: Item[] = [
+  {
+    Icon: Car,
+    titulo: "Automotriz",
+    texto: "Autopartes y vehículos completos, con su régimen y sus certificaciones.",
+  },
+  {
+    Icon: Cpu,
+    titulo: "Tecnología y electrónica",
+    texto: "Despacho y logística de productos electrónicos y sus componentes.",
+  },
+  {
+    Icon: UtensilsCrossed,
+    titulo: "Alimentos y bebidas",
+    texto: "Perecederos y no perecederos, cumpliendo la normativa sanitaria.",
+  },
+  {
+    Icon: Shirt,
+    titulo: "Moda y textil",
+    texto: "Indumentaria y telas, donde la clasificación define el costo final.",
+  },
+  {
+    Icon: Factory,
+    titulo: "Maquinaria y equipos",
+    texto: "Maquinaria pesada y equipamiento industrial, de origen a planta.",
+  },
+  {
+    Icon: FlaskConical,
+    titulo: "Productos químicos",
+    texto: "Clasificación y gestión, con las habilitaciones que cada sustancia exige.",
+  },
+  {
+    Icon: ShoppingBag,
+    titulo: "Bienes de consumo",
+    texto: "Consumo masivo, optimizando tiempos y costos por lote.",
+  },
 ];
+
+/**
+ * Un número que sube hasta su valor en vez de aparecer puesto.
+ *
+ * El valor final es también lo que se pinta en el servidor: si el JavaScript
+ * tarda o no llega, se lee «+20» y no «+0», que sería peor que no animar nada.
+ * La curva frena sobre el final —arranca rápido y se acomoda— porque un
+ * contador lineal se lee como un cronómetro, no como un dato.
+ */
+function Contador({ hasta, sufijo = "" }: { hasta: number; sufijo?: string }) {
+  const [valor, setValor] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const DURACION = 1500;
+    let cuadro = 0;
+    let arranque = 0;
+    let anterior = 0;
+
+    const paso = (ahora: number) => {
+      if (!arranque) arranque = ahora;
+      // Si la pestaña se fue a segundo plano, el navegador dejó de dar cuadros
+      // pero el reloj siguió corriendo. Sin correr el arranque por el hueco, al
+      // volver el número ya estaría en su valor final y nadie vería la cuenta.
+      if (anterior && ahora - anterior > 200) arranque += ahora - anterior;
+      anterior = ahora;
+
+      const avance = Math.min(1, (ahora - arranque) / DURACION);
+      setValor(Math.round(hasta * (1 - Math.pow(1 - avance, 3))));
+      if (avance < 1) cuadro = requestAnimationFrame(paso);
+    };
+
+    cuadro = requestAnimationFrame(paso);
+    return () => cancelAnimationFrame(cuadro);
+  }, [hasta]);
+
+  return (
+    <>
+      +{valor ?? hasta}
+      {sufijo}
+    </>
+  );
+}
+
+/**
+ * El sello del estudio.
+ *
+ * Un despachante vive de sellar: es el gesto más reconocible del oficio, y
+ * traerlo a la página dice «veinte años de esto» mejor que otra tarjeta con
+ * texto. El aro exterior gira despacio; el centro queda quieto para que el
+ * número se pueda leer.
+ */
+function Sello() {
+  return (
+    <div className="sello relative aspect-square w-[230px] sm:w-[260px]">
+      <svg viewBox="0 0 200 200" className="h-full w-full" role="img" aria-label="J&C Comex, más de 20 años">
+        <defs>
+          {/* El aro sobre el que corre el texto. Va por dentro de los bordes
+              para que las letras no toquen las circunferencias. */}
+          <path
+            id="sello-aro"
+            d="M 100,100 m -74,0 a 74,74 0 1,1 148,0 a 74,74 0 1,1 -148,0"
+            fill="none"
+          />
+        </defs>
+
+        <g className="sello-trazo" fill="none">
+          <circle cx="100" cy="100" r="94" strokeWidth="1.5" />
+          <circle cx="100" cy="100" r="86" strokeWidth="3" />
+          <circle cx="100" cy="100" r="56" strokeWidth="1.5" strokeDasharray="3 4" />
+        </g>
+
+        <g className="sello-giro">
+          <text className="sello-leyenda" fontSize="11" letterSpacing="2">
+            <textPath href="#sello-aro" startOffset="0%">
+              J&amp;C COMEX · DESPACHANTES DE ADUANA · BUENOS AIRES ·
+            </textPath>
+          </text>
+        </g>
+
+        <text
+          className="sello-cifra"
+          x="100"
+          y="99"
+          textAnchor="middle"
+          fontSize="42"
+          fontWeight="800"
+        >
+          +20
+        </text>
+        <text
+          className="sello-pie"
+          x="100"
+          y="120"
+          textAnchor="middle"
+          fontSize="11"
+          letterSpacing="4.5"
+          fontWeight="600"
+        >
+          AÑOS
+        </text>
+      </svg>
+    </div>
+  );
+}
+
+/* ───────────────────────── Piezas compartidas ───────────────────────── */
+
+/**
+ * El logotipo de WhatsApp. Va escrito acá y no sale de lucide porque la
+ * librería no incluye marcas registradas.
+ */
+function IconoWhatsApp({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={className}>
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
+    </svg>
+  );
+}
+
+/**
+ * El contacto del sitio, fijo abajo a la derecha y siempre a mano.
+ *
+ * El verde es el de WhatsApp y queda igual en los dos temas: es el color de la
+ * marca, no el de la paleta del sitio.
+ */
+function WhatsAppFlotante() {
+  return (
+    <div className="fixed bottom-5 right-5 z-50 h-14 w-14 sm:bottom-7 sm:right-7">
+      <span aria-hidden className="pulso-wa" />
+      <a
+        href={CONTACTO}
+        target="_blank"
+        rel="noreferrer noopener"
+        aria-label="Escribinos por WhatsApp"
+        className="relative inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_14px_34px_-10px_rgba(37,211,102,0.65)] transition-transform duration-300 hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#25D366]"
+      >
+        <IconoWhatsApp className="h-7 w-7" />
+      </a>
+    </div>
+  );
+}
+
+/**
+ * Encabezado de sección: el rótulo chico en naranja y el título.
+ *
+ * El rótulo no es decoración —dice en qué parte del sitio está parado el
+ * visitante, que es lo único que se pierde al no haber menú de navegación—.
+ */
+function TituloSeccion({
+  rotulo,
+  titulo,
+  children,
+  className = "",
+}: {
+  rotulo: string;
+  titulo: React.ReactNode;
+  children?: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div data-reveal className={`landing-reveal ${className}`}>
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-text">
+        {rotulo}
+      </p>
+      <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+        {titulo}
+      </h2>
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Título de una línea de servicio, con la regla que se apaga hacia la derecha.
+ * La regla marca dónde empieza cada bloque sin cortar la página en dos, que es
+ * justo lo que hacían los bordes de sección que había antes.
+ */
+function TituloBloque({ children }: { children: React.ReactNode }) {
+  return (
+    <div data-reveal className="landing-reveal flex items-center gap-4">
+      <h3 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
+        {children}
+      </h3>
+      <span
+        aria-hidden
+        className="regla-bloque h-px flex-1 bg-gradient-to-r from-accent/50 to-transparent"
+      />
+    </div>
+  );
+}
+
+/**
+ * Tarjeta de servicio. Translúcida a propósito: el fondo de la página tiene
+ * que verse por detrás, si no vuelve a leerse como un bloque aparte.
+ */
+function Tarjeta({ Icon, titulo, texto, retraso }: Item & { retraso: number }) {
+  return (
+    <li
+      data-reveal
+      style={{ transitionDelay: `${retraso}ms` }}
+      className="landing-reveal tarjeta-viva group flex gap-4 rounded-2xl border border-border/70 bg-surface/80 p-5 hover:border-accent/45 hover:shadow-[0_20px_44px_-28px_var(--ring)]"
+    >
+      <span className="icono-salton mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-text">
+        <Icon className="h-5 w-5" strokeWidth={1.8} />
+      </span>
+      <div>
+        <h4 className="text-[15px] font-semibold text-foreground">{titulo}</h4>
+        <p className="mt-1.5 text-sm leading-relaxed text-muted">{texto}</p>
+      </div>
+    </li>
+  );
+}
 
 /* ───────────────────────── Página ───────────────────────── */
 
@@ -271,21 +578,12 @@ export function Landing() {
   return (
     <div ref={rootRef} className="relative min-h-screen overflow-x-clip">
       {/* ── Header ── */}
+      {/* Solo la marca, centrada. El contacto vive en el botón flotante de
+          WhatsApp, así que nada le compite al logo. La altura sigue siendo
+          h-16 porque el hero la descuenta. */}
       <header className="relative z-10">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5 sm:px-8">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-center px-5 sm:px-8">
           <Brand size="sm" />
-          {/* Donde en el portal iban «Registrarme» e «Ingresar». Este sitio no
-              tiene sesión, así que ese lugar lo ocupa el contacto — mismo
-              estilo y misma posición, para no mover el diseño. */}
-          <a
-            href={CONTACTO}
-            target="_blank"
-            rel="noreferrer noopener"
-            className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground shadow-[0_10px_28px_-14px_var(--ring)] transition-opacity hover:opacity-90"
-          >
-            <MessageCircle className="h-4 w-4" />
-            Contacto
-          </a>
         </div>
       </header>
 
@@ -319,13 +617,17 @@ export function Landing() {
 
             <div data-reveal className="landing-reveal mt-8 flex flex-wrap items-center justify-center gap-4 md:justify-start">
               <div className="flex flex-col items-center rounded-2xl bg-accent-soft px-5 py-3">
-                <span className="text-3xl font-extrabold text-accent">+20</span>
+                <span className="text-3xl font-extrabold text-accent">
+                  <Contador hasta={20} />
+                </span>
                 <span className="text-xs font-medium uppercase tracking-wide text-accent">
                   años
                 </span>
               </div>
               <div className="flex flex-col items-center rounded-2xl bg-accent-soft px-5 py-3">
-                <span className="text-3xl font-extrabold text-accent">+10K</span>
+                <span className="text-3xl font-extrabold text-accent">
+                  <Contador hasta={10} sufijo="K" />
+                </span>
                 <span className="text-xs font-medium uppercase tracking-wide text-accent">
                   despachos
                 </span>
@@ -342,233 +644,194 @@ export function Landing() {
         {/* Invitación a seguir bajando: es lo único que pedimos en esta pantalla. */}
         <div data-reveal className="landing-reveal relative flex shrink-0 justify-center pb-8">
           <a
-            href="#portal"
-            aria-label="Ver cómo trabajamos"
+            href="#nosotros"
+            aria-label="Conocer el estudio"
             className="group flex flex-col items-center gap-2 text-muted transition-colors hover:text-accent"
           >
             <span className="text-xs font-medium uppercase tracking-[0.2em]">
-              Cómo trabajamos
+              Conocenos
             </span>
             <ChevronDown className="landing-flecha h-10 w-10" strokeWidth={1.5} />
           </a>
         </div>
       </section>
 
-      {/* ── Portal ── */}
-      <section
-        id="portal"
-        className="relative overflow-hidden border-t border-border/60 bg-surface/40"
-      >
-        <div
-          aria-hidden
-          className="absolute -right-40 top-1/2 h-[420px] w-[420px] -translate-y-1/2 rounded-full bg-accent/10 blur-[120px]"
-        />
-        <div className="relative mx-auto grid max-w-6xl items-start gap-12 px-5 py-20 sm:px-8 sm:py-28 md:grid-cols-5">
-          <div data-reveal className="landing-reveal md:col-span-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
-              Portal de clientes
+      {/* ── Todo lo que va debajo del hero ──
+          Un solo contenedor con un solo fondo. Las secciones de adentro no
+          pintan nada: la continuidad del color es lo que evita que se lean
+          como páginas distintas pegadas una con otra. */}
+      <div className="relative">
+        <div aria-hidden className="trama-mapa absolute inset-0" />
+        <div aria-hidden className="absolute inset-0 overflow-hidden">
+          <span className="mancha left-[-14%] top-[6%] h-[520px] w-[680px]" />
+          <span
+            className="mancha right-[-18%] top-[30%] h-[580px] w-[720px]"
+            style={{ animationDelay: "-7s" }}
+          />
+          <span
+            className="mancha left-[-12%] top-[58%] h-[540px] w-[640px]"
+            style={{ animationDelay: "-13s" }}
+          />
+          <span
+            className="mancha right-[-14%] top-[84%] h-[500px] w-[680px]"
+            style={{ animationDelay: "-4s" }}
+          />
+        </div>
+
+        {/* ── Nosotros ── */}
+        <section id="nosotros" className="relative">
+          <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
+            <div className="grid items-center gap-12 lg:grid-cols-[1.15fr_auto] lg:gap-20">
+              <div>
+                <TituloSeccion
+                  rotulo="Nosotros"
+                  titulo={
+                    <>
+                      Más de <span className="text-accent-text">20 años</span>{" "}
+                      despachando para PyMEs
+                    </>
+                  }
+                />
+                <div
+                  data-reveal
+                  className="landing-reveal mt-6 space-y-4 text-base leading-relaxed text-muted"
+                >
+                  <p>
+                    En todo ese tiempo construimos una reputación que se apoya en dos
+                    cosas simples: hacer lo que decimos y avisar a tiempo cuando algo
+                    cambia.
+                  </p>
+                  <p>
+                    La normativa se mueve, los plazos aprietan y cada operación tiene su
+                    vuelta. Nos hacemos cargo del trámite y te lo contamos en castellano,
+                    sin que tengas que aprender de aduana para saber en qué anda tu carga.
+                  </p>
+                </div>
+              </div>
+
+              <div data-reveal className="landing-reveal flex justify-center lg:justify-end">
+                <Sello />
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        {/* ── Servicios ── */}
+        <section id="servicios" className="relative">
+          <div className="mx-auto max-w-6xl px-5 pb-20 sm:px-8 sm:pb-28">
+            {/* Solo el rótulo, sin título ni bajada: los dos nombres de línea
+                que vienen abajo ya dicen de qué se trata, y repetirlo arriba
+                era decir lo mismo tres veces. */}
+            <p
+              data-reveal
+              className="landing-reveal text-xs font-semibold uppercase tracking-[0.2em] text-accent-text"
+            >
+              Servicios
             </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              Tu despacho, en vivo
-            </h2>
-            <p className="mt-4 max-w-lg text-base leading-relaxed text-muted">
-              Cada operación tiene su tablero: estado, documentos y avisos del
-              estudio en el momento.
-            </p>
-            <ul className="mt-7 space-y-3.5">
-              {[
-                "Seguimiento paso a paso, de «Recibida» a «Entregada»",
-                "Documentos de la operación en un solo lugar",
-                "Cotizaciones y liquidaciones en PDF",
-                "Avisos del estudio directo en tu tablero",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2.5 text-sm text-foreground">
-                  <CheckCircle2 className="mt-0.5 h-[18px] w-[18px] shrink-0 text-accent" />
-                  {item}
+
+            <div className="mt-8">
+              <TituloBloque>Liberaciones aduaneras</TituloBloque>
+              <ul className="mt-6 grid gap-4 sm:grid-cols-2">
+                {LIBERACIONES.map((item, i) => (
+                  <Tarjeta key={item.titulo} {...item} retraso={i * 60} />
+                ))}
+              </ul>
+            </div>
+
+            <div className="mt-16">
+              <TituloBloque>Agente de compras internacionales</TituloBloque>
+              <ul className="mt-6 grid gap-4 sm:grid-cols-2">
+                {COMPRAS.map((item, i) => (
+                  <Tarjeta key={item.titulo} {...item} retraso={i * 60} />
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Rubros ── */}
+        <section id="rubros" className="relative">
+          <div className="mx-auto max-w-6xl px-5 pb-20 sm:px-8 sm:pb-28">
+            <TituloSeccion
+              rotulo="Clientes"
+              titulo={
+                <>
+                  Los rubros que{" "}
+                  <span className="text-accent-text">ya despachamos</span>
+                </>
+              }
+              className="max-w-2xl"
+            />
+
+            <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {RUBROS.map((item, i) => (
+                <li
+                  key={item.titulo}
+                  data-reveal
+                  style={{ transitionDelay: `${i * 60}ms` }}
+                  className="landing-reveal tarjeta-viva group rounded-2xl border border-border/70 bg-surface/80 p-5 hover:border-accent/45 hover:shadow-[0_20px_44px_-28px_var(--ring)]"
+                >
+                  <span className="icono-salton inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent-soft text-accent-text">
+                    <item.Icon className="h-5 w-5" strokeWidth={1.8} />
+                  </span>
+                  <h3 className="mt-4 text-[15px] font-semibold text-foreground">
+                    {item.titulo}
+                  </h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted">
+                    {item.texto}
+                  </p>
                 </li>
               ))}
-            </ul>
-            <div className="mt-9 flex flex-wrap items-center gap-3">
-              <a
-                href={CONTACTO}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-sm font-semibold text-accent-foreground shadow-[0_12px_32px_-12px_var(--ring)] transition-all hover:opacity-90"
-              >
-                ¿Querés acceder a todo esto?
-                <ArrowRight className="h-4 w-4" />
-              </a>
-              <a
-                href="#proceso"
-                className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface/70 px-6 py-3.5 text-sm font-semibold text-foreground transition-colors hover:border-accent/50"
-              >
-                ¿Cómo trabajamos?
-              </a>
-            </div>
-          </div>
 
-          {/* Mock del portal — refleja el tablero real del cliente */}
-          <div data-reveal className="landing-reveal md:col-span-3">
-            <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 shadow-[0_30px_80px_-40px_var(--ring)] sm:p-6">
-              {/* Encabezado de la operación */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-accent-foreground shadow-[0_8px_20px_-8px_var(--ring)]">
-                    <Container className="h-[22px] w-[22px]" />
-                  </span>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">IMPO 2324</p>
-                    <p className="text-[11px] text-muted">
-                      Importación · Marítima · China → Argentina
-                    </p>
-                  </div>
-                </div>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-accent">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
-                  En curso
-                </span>
-              </div>
-
-              {/* Progreso: 6 etapas reales */}
-              <div className="mt-6">
-                <div className="flex items-baseline justify-between">
-                  <p className="text-sm font-semibold text-foreground">
-                    Canal asignado
-                  </p>
-                  <p className="text-[11px] font-medium text-muted">Paso 4 de 6</p>
-                </div>
-                <div className="mt-2.5 flex items-center gap-1">
-                  {PIPELINE.map((etapa, i) => (
-                    <span
-                      key={etapa}
-                      className={`h-1.5 flex-1 rounded-full ${
-                        i <= 3 ? "bg-accent" : "bg-surface-2"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <div className="mt-1.5 flex items-center justify-between text-[10px] text-muted">
-                  <span>Recibida</span>
-                  <span>Entregada</span>
-                </div>
-              </div>
-
-              {/* Datos clave de la operación */}
-              <div className="mt-5 grid grid-cols-3 gap-2">
-                <div className="rounded-xl border border-border bg-surface-2/40 p-3">
-                  <p className="text-[9px] font-medium uppercase tracking-wide text-muted">
-                    NCM
-                  </p>
-                  <p className="mt-1 text-[13px] font-semibold text-foreground">
-                    8471.30.12
-                  </p>
-                </div>
-                <div className="rounded-xl border border-border bg-surface-2/40 p-3">
-                  <p className="text-[9px] font-medium uppercase tracking-wide text-muted">
-                    Incoterm
-                  </p>
-                  <p className="mt-1 text-[13px] font-semibold text-foreground">
-                    FOB Shanghái
-                  </p>
-                </div>
-                <div className="rounded-xl border border-accent/30 bg-accent-soft p-3">
-                  <p className="text-[9px] font-medium uppercase tracking-wide text-accent">
-                    Valor CIF
-                  </p>
-                  <p className="mt-1 text-[13px] font-bold text-accent">
-                    USD 48.500
-                  </p>
-                </div>
-              </div>
-
-              {/* Documentos */}
-              <div className="mt-5">
-                <div className="flex items-center justify-between">
-                  <p className="inline-flex items-center gap-1.5 text-xs font-semibold text-foreground">
-                    <FileText className="h-3.5 w-3.5 text-muted" />
-                    Documentos
-                  </p>
-                  <span className="text-[11px] font-medium text-muted">4 de 5</span>
-                </div>
-                <div className="mt-2.5 grid grid-cols-2 gap-2">
-                  {DOCS_MOCK.map(({ label, done }) => (
-                    <div
-                      key={label}
-                      className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-2 text-[11px] ${
-                        done
-                          ? "border-border bg-surface-2/40 text-foreground"
-                          : "border-dashed border-border text-muted"
-                      }`}
-                    >
-                      {done ? (
-                        <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-accent" />
-                      ) : (
-                        <Circle className="h-3.5 w-3.5 shrink-0 text-muted" />
-                      )}
-                      <span className="truncate">{label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Aviso del estudio */}
-              <div className="mt-5 rounded-xl border border-border bg-surface-2/40 p-3.5">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-[9px] font-bold text-accent-foreground">
-                    JC
-                  </span>
-                  <p className="text-[11px] font-semibold text-foreground">
-                    J&amp;C Comex
-                  </p>
-                  <span className="ml-auto text-[10px] text-muted">hoy 10:24</span>
-                </div>
-                <p className="mt-2 text-[11px] leading-relaxed text-muted">
-                  La Aduana asignó el canal de control. Avanzamos con la
-                  verificación que corresponda para liberar la mercadería.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Proceso ── */}
-      <section id="proceso" className="relative">
-        <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
-          <div data-reveal className="landing-reveal max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
-              Cómo trabajamos
-            </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              Cuatro pasos, cero sorpresas
-            </h2>
-          </div>
-
-          <ol className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {PASOS.map(({ Icon, titulo, texto }, i) => (
+              {/* Octava celda: cierra la grilla de dos filas y, de paso, le da
+                  salida al visitante cuyo rubro no está en la lista. */}
               <li
-                key={titulo}
                 data-reveal
-                style={{ transitionDelay: `${i * 110}ms` }}
-                className="landing-reveal relative rounded-2xl border border-border bg-surface p-6"
+                style={{ transitionDelay: `${RUBROS.length * 60}ms` }}
+                className="landing-reveal"
               >
-                <div className="flex items-center justify-between">
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent-soft text-accent">
-                    <Icon className="h-5 w-5" strokeWidth={1.8} />
+                <a
+                  href={CONTACTO}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="tarjeta-viva group flex h-full flex-col justify-between rounded-2xl border border-dashed border-accent/45 bg-accent-soft/70 p-5 hover:border-accent hover:shadow-[0_20px_44px_-28px_var(--ring)]"
+                >
+                  <h3 className="text-[15px] font-semibold text-foreground">
+                    ¿Tu rubro no está en la lista?
+                  </h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted">
+                    Contanos qué importás y te decimos cómo se despacha.
+                  </p>
+                  <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-text">
+                    Escribinos
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </span>
-                  <span className="text-4xl font-extrabold tracking-tight text-border">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                </div>
-                <h3 className="mt-5 text-base font-semibold text-foreground">{titulo}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted">{texto}</p>
+                </a>
               </li>
-            ))}
-          </ol>
-        </div>
-      </section>
+            </ul>
+          </div>
+        </section>
 
-      <InstagramPosts />
+        <InstagramPosts />
+
+        <MapaOficina />
+
+        {/* ── Pie ── */}
+        <footer className="relative border-t border-border/60">
+          <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 px-5 py-10 sm:flex-row sm:justify-between sm:px-8">
+            <div className="flex flex-col items-center gap-3 sm:flex-row sm:gap-4">
+              <Brand size="sm" />
+              <p className="text-sm text-muted">Despachantes de aduana</p>
+            </div>
+            <p className="text-center text-xs text-muted sm:text-right">
+              {`© ${new Date().getFullYear()} J&C Comex · Todos los derechos reservados`}
+            </p>
+          </div>
+        </footer>
+      </div>
+
+      <WhatsAppFlotante />
     </div>
   );
 }

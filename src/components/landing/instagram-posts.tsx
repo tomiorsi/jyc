@@ -28,10 +28,10 @@ const ALTO = Math.round(56 + ANCHO * 1.24 + 52);
 
 export function InstagramPosts() {
   return (
-    <section id="instagram" className="border-t border-border">
-      <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
+    <section id="instagram" className="relative">
+      <div className="mx-auto max-w-6xl px-5 pb-24 sm:px-8 sm:pb-32">
         <div data-reveal className="landing-reveal text-center">
-          <p className="flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+          <p className="flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-accent-text">
             <Camera className="h-4 w-4" />
             Instagram
           </p>
@@ -46,7 +46,7 @@ export function InstagramPosts() {
               key={id}
               data-reveal
               style={{ transitionDelay: `${i * 90}ms` }}
-              className="landing-reveal w-full max-w-[326px] overflow-hidden rounded-xl border border-border bg-white shadow-sm"
+              className="landing-reveal tarjeta-viva w-full max-w-[326px] overflow-hidden rounded-2xl border border-border/70 bg-white shadow-sm hover:border-accent/45 hover:shadow-[0_22px_48px_-26px_var(--ring)]"
             >
               <iframe
                 src={`https://www.instagram.com/reel/${id}/embed/`}

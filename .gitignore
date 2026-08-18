@@ -9,3 +9,8 @@ npm-debug.log*
 .vercel
 *.tsbuildinfo
 next-env.d.ts
+
+# Artefactos del build para Cloudflare (OpenNext + Wrangler). Se regeneran en
+# cada deploy y `.wrangler/state` guarda estado local de la máquina.
+/.open-next/
+/.wrangler/
