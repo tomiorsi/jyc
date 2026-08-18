@@ -22,6 +22,15 @@ process.env.TZ = process.env.TZ || "America/Argentina/Buenos_Aires";
 const nextConfig: NextConfig = {
   output: "export",
   devIndicators: false,
+  images: {
+    // El optimizador de imágenes de Next es un servicio que corre en tiempo de
+    // request, y acá no hay servidor: las imágenes se sirven tal cual desde el
+    // CDN. Sin esto, `next/image` sobre un PNG rompe el build entero.
+    //
+    // Los SVG nunca pasaron por el optimizador, y por eso el logo de la marca
+    // venía funcionando aunque esta opción no estuviera.
+    unoptimized: true,
+  },
 };
 
 export default nextConfig;

@@ -912,32 +912,147 @@ body::before {
   background-size: 22px 22px;
 }
 
-/* Un resplandor ancho y quieto que respira muy despacio de un lado al otro.
-   Nada de texto encima se mueve con él —es atmósfera, como las manchas del
-   resto de la página, no una animación que compita por atención—. */
-.courier-brillo {
-  background: radial-gradient(
-    ellipse 60% 100% at 50% 50%,
-    color-mix(in srgb, var(--accent-foreground) 16%, transparent),
-    transparent 70%
+/*
+ * El remolino: el color girando dentro de la banda.
+ *
+ * Es un degradado cónico —o sea, un barrido de color alrededor de un centro—
+ * con franjas cálidas separadas por transparencias, puesto a rotar. Al girar,
+ * esas franjas pasan por encima del naranja y lo van tiñendo de a ratos: eso
+ * es lo que se lee como "colores dando vueltas".
+ *
+ * `inset` negativo grande: el cuadrado tiene que ser bastante más ancho que la
+ * banda porque al rotar sus esquinas barren hacia adentro, y con inset 0 se
+ * verían entrar y salir por los bordes.
+ *
+ * Sólo anima `rotate`, que el compositor resuelve sin repintar nada.
+ */
+.courier-remolino {
+  inset: -75%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    color-mix(in srgb, #fff 34%, transparent) 35deg,
+    transparent 85deg,
+    color-mix(in srgb, #ffc978 42%, transparent) 145deg,
+    transparent 200deg,
+    color-mix(in srgb, #fff 22%, transparent) 260deg,
+    transparent 310deg,
+    color-mix(in srgb, #ef6b1f 34%, transparent) 340deg,
+    transparent 360deg
   );
-  animation: courier-brillo-mover 16s ease-in-out infinite;
+  filter: blur(46px);
+  animation: courier-girar 30s linear infinite;
+  will-change: rotate;
 }
 
-@keyframes courier-brillo-mover {
-  0%,
-  100% {
-    transform: translateX(-10%);
-    opacity: 0.7;
+@keyframes courier-girar {
+  to {
+    rotate: 360deg;
   }
-  50% {
-    transform: translateX(110%);
-    opacity: 1;
-  }
+}
+
+/*
+ * El resplandor que sigue al cursor. Las coordenadas las escribe el componente
+ * en `--raton-x` / `--raton-y`; los valores de acá son la posición de descanso,
+ * que es también la que queda si el JavaScript no llega a correr.
+ *
+ * No lleva `transition`: el movimiento ya sale parejo porque el componente
+ * escribe como mucho un valor por cuadro, y encadenar además una transición
+ * sobre el degradado dejaría al resplandor arrastrándose detrás del cursor.
+ */
+/* Los valores de descanso van en la banda y no en `.courier-aura`, que es
+   quien los consume: una variable declarada en el propio elemento le gana
+   siempre a la heredada, así que definirlos ahí abajo hacía que el aura
+   ignorara por completo lo que el componente escribe en la sección. */
+.courier-banda {
+  --raton-x: 50%;
+  --raton-y: 50%;
+
+  /* Un naranja propio, más claro que el de la marca: el acento puro resultaba
+     demasiado fuerte para un bloque de este tamaño.
+     El texto pasa a ser oscuro y no blanco. No es sólo estético: blanco sobre
+     el acento daba 2,8:1 de contraste —por debajo del mínimo de 3:1 incluso
+     para un título grande—, y al aclarar el fondo hubiera empeorado. Con el
+     marrón queda en 7,6:1. */
+  --banda-fondo: #fb9f5e;
+  --banda-texto: #3d1a06;
+}
+
+/* En oscuro se va para el otro lado: un naranja claro a esta escala encandila
+   contra el resto de la página, así que se apaga y el texto se aclara. */
+.dark .courier-banda {
+  --banda-fondo: #a8501f;
+  --banda-texto: #ffe8d5;
+}
+
+.courier-aura {
+  background: radial-gradient(
+    380px circle at var(--raton-x) var(--raton-y),
+    color-mix(in srgb, #fff 32%, transparent),
+    transparent 70%
+  );
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .courier-brillo {
+  .courier-remolino {
     animation: none;
+  }
+}
+
+/*
+ * El destello que cruza cada chapa. Es una banda de luz diagonal que pasa por
+ * encima del logo cada tantos segundos, escalonada entre las tres para que se
+ * lean como una secuencia y no como un parpadeo simultáneo.
+ *
+ * `overflow: hidden` en la chapa es lo que lo recorta al recuadro; sin eso la
+ * banda se ve entrar y salir por fuera del borde redondeado.
+ */
+.courier-chapa {
+  position: relative;
+  overflow: hidden;
+  animation: courier-destello 6s ease-in-out infinite;
+}
+
+.courier-chapa::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.9) 50%,
+    transparent 62%
+  );
+  transform: translateX(-130%);
+  animation: inherit;
+}
+
+@keyframes courier-destello {
+  0%,
+  62% {
+    transform: translateX(-130%);
+  }
+  78%,
+  100% {
+    transform: translateX(130%);
+  }
+}
+
+/* La animación va declarada en la chapa para poder escalonarla desde el JSX
+   con `animation-delay`, pero mover la chapa entera arruinaría el layout: sólo
+   tiene que moverse el reflejo. Se la anula acá y la hereda el ::after. */
+.courier-chapa {
+  animation-name: none;
+}
+
+.courier-chapa::after {
+  animation-name: courier-destello;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .courier-chapa::after {
+    animation: none;
+    opacity: 0;
   }
 }
