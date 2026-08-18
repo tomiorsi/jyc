@@ -1,0 +1,25 @@
+# Cabeceras que aplica Cloudflare a los archivos estáticos.
+#
+# El sitio se exporta a HTML suelto (`output: "export"`), y en ese modo Next
+# ignora el `headers()` del config: no hay servidor propio que las agregue. Este
+# archivo es el reemplazo — se copia tal cual a `out/` y Cloudflare lo lee al
+# publicar.
+#
+# La política es la misma del portal menos lo que acá no existe: sin `connect-src`
+# para el backend (este sitio no llama a ninguna API) y sin los íconos de los
+# medios (no hay sección de noticias). El único recurso de terceros son los reels
+# de la landing, que renderizan en un iframe de instagram.com.
+#
+# El mapa NO figura acá: se dibuja con geometría propia, no con un iframe de
+# Google, así que no necesita permiso de nada.
+
+/*
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: blob:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; frame-src 'self' https://www.instagram.com; upgrade-insecure-requests
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+
+# Los archivos con hash en el nombre no cambian nunca: se pueden cachear para
+# siempre. El HTML no, que es lo que apunta a ellos.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
