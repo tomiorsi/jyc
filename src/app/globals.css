@@ -893,3 +893,51 @@ body::before {
     animation: none;
   }
 }
+
+/* ─────────────────── Banda de couriers ───────────────────
+ * La sección corta la página a propósito: fondo sólido, todo el ancho, para
+ * que se registre como una parada y no como una tarjeta más. Estas dos capas
+ * son lo único que la separa de un bloque de color plano.
+ */
+
+/* La misma trama de puntos que el resto de la página, pero en el color que
+   pinta encima —el texto de la franja, no el fondo—: así la banda sigue
+   emparentada visualmente con el resto sin dejar de ser opaca. */
+.courier-textura {
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    color-mix(in srgb, var(--accent-foreground) 16%, transparent) 1px,
+    transparent 0
+  );
+  background-size: 22px 22px;
+}
+
+/* Un resplandor ancho y quieto que respira muy despacio de un lado al otro.
+   Nada de texto encima se mueve con él —es atmósfera, como las manchas del
+   resto de la página, no una animación que compita por atención—. */
+.courier-brillo {
+  background: radial-gradient(
+    ellipse 60% 100% at 50% 50%,
+    color-mix(in srgb, var(--accent-foreground) 16%, transparent),
+    transparent 70%
+  );
+  animation: courier-brillo-mover 16s ease-in-out infinite;
+}
+
+@keyframes courier-brillo-mover {
+  0%,
+  100% {
+    transform: translateX(-10%);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateX(110%);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .courier-brillo {
+    animation: none;
+  }
+}

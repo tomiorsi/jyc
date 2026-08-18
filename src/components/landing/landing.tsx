@@ -14,6 +14,7 @@ import {
   FlaskConical,
   Handshake,
   Landmark,
+  PackageCheck,
   Plane,
   Receipt,
   Scale,
@@ -317,6 +318,9 @@ const COMPRAS: Item[] = [
 ];
 
 /** Rubros con los que el estudio ya trabajó. Cada uno tiene su propia vuelta. */
+/** Las couriers cuyos envíos liberamos. Nombradas, no su isotipo. */
+const COURIERS = ["UPS", "DHL", "FedEx"];
+
 const RUBROS: Item[] = [
   {
     Icon: Car,
@@ -747,6 +751,63 @@ export function Landing() {
                 ))}
               </ul>
             </div>
+          </div>
+        </section>
+
+        {/* ── Courier ── */}
+        {/* Banda a todo el ancho: corta la superficie continua de la página
+            a propósito, como una parada fuerte en medio del recorrido.
+            Por eso el fondo es sólido y no traslúcido como el resto de las
+            tarjetas —tiene que tapar del todo la trama y las manchas de
+            atrás, no dejarlas asomar—. */}
+        <section id="courier" className="relative bg-accent">
+          <div aria-hidden className="courier-textura absolute inset-0" />
+          <div
+            aria-hidden
+            className="courier-brillo absolute inset-y-0 left-0 w-1/2"
+          />
+
+          <div className="relative mx-auto max-w-6xl px-5 py-16 text-center sm:px-8 sm:py-24">
+            <p
+              data-reveal
+              className="landing-reveal text-xs font-semibold uppercase tracking-[0.2em] text-accent-foreground/75"
+            >
+              Courier internacional
+            </p>
+            <h2
+              data-reveal
+              className="landing-reveal mx-auto mt-3 max-w-2xl text-3xl font-bold tracking-tight text-accent-foreground sm:text-4xl"
+            >
+              Liberamos tus envíos de UPS, DHL y FedEx
+            </h2>
+            <p
+              data-reveal
+              className="landing-reveal mx-auto mt-4 max-w-lg text-base leading-relaxed text-accent-foreground/85"
+            >
+              Retiramos tu paquetería apenas queda retenida en la Aduana y te
+              la entregamos liberada, sin importar con cuál llegó.
+            </p>
+
+            <ul
+              data-reveal
+              style={{ transitionDelay: "90ms" }}
+              className="landing-reveal mt-10 flex flex-wrap items-center justify-center gap-4 sm:gap-5"
+            >
+              {COURIERS.map((nombre) => (
+                <li
+                  key={nombre}
+                  className="group flex items-center gap-2.5 rounded-2xl border border-accent-foreground/25 bg-accent-foreground/10 px-6 py-4 transition-colors hover:border-accent-foreground/45 hover:bg-accent-foreground/15"
+                >
+                  <PackageCheck
+                    className="icono-salton h-5 w-5 text-accent-foreground"
+                    strokeWidth={1.8}
+                  />
+                  <span className="text-lg font-extrabold uppercase tracking-wide text-accent-foreground">
+                    {nombre}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 
