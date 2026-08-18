@@ -1,0 +1,19 @@
+{
+  // Sin este archivo, Cloudflare no tenía forma de saber qué es este
+  // proyecto y, al ver "next" en el package.json, lo envolvía sola con
+  // OpenNext — que necesita `.next/standalone`, algo que el modo export
+  // (`output: "export"` en next.config.ts) nunca genera. De ahí el ENOENT
+  // buscando `pages-manifest.json`.
+  //
+  // Con esto declarado, el Worker no ejecuta código: sirve los archivos de
+  // `out/` directo desde la red de Cloudflare. No hay `main`, porque no hay
+  // ningún script — es sólo la carpeta.
+  "name": "jyc",
+  "compatibility_date": "2024-09-23",
+  "assets": {
+    "directory": "out",
+    // Página propia de "no encontrado" en vez de la genérica de Cloudflare.
+    // El export ya genera `out/404.html` — se probó que responde bien.
+    "not_found_handling": "404-page"
+  }
+}
