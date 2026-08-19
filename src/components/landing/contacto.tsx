@@ -102,7 +102,7 @@ export function Contacto() {
   return (
     <section id="contacto" className="relative">
       <div className="mx-auto max-w-6xl px-5 pb-20 sm:px-8 sm:pb-28">
-        <ul className="flex flex-wrap items-start gap-x-14 gap-y-8">
+        <ul className="flex flex-wrap items-start justify-center gap-x-14 gap-y-8">
           <li data-reveal className="landing-reveal">
             <a
               href={WHATSAPP}
