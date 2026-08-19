@@ -12,11 +12,16 @@ import Image from "next/image";
  * proporciones muy diferentes: el escudo de UPS es casi cuadrado y la palabra
  * DHL es siete veces más ancha que alta. Escalarlas todas al mismo alto haría
  * ver a UPS enorme y a DHL diminuta; estos valores las emparejan a ojo.
+ *
+ * `altoMovil` es el mismo ajuste para pantalla angosta. Los tres tienen que
+ * entrar en una sola línea de 375 px, y con las medidas de escritorio no
+ * entran ni de cerca: la palabra DHL sola mide 127 px de ancho. Van más chicos,
+ * manteniendo entre sí la misma proporción.
  */
 const COURIERS = [
-  { nombre: "UPS", archivo: "/couriers/ups.png", ancho: 274, alto: 296, altoEnPantalla: 44 },
-  { nombre: "DHL", archivo: "/couriers/dhl.png", ancho: 219, alto: 31, altoEnPantalla: 18 },
-  { nombre: "FedEx", archivo: "/couriers/fedex.png", ancho: 261, alto: 80, altoEnPantalla: 28 },
+  { nombre: "UPS", archivo: "/couriers/ups.png", ancho: 274, alto: 296, altoEnPantalla: 44, altoMovil: 30 },
+  { nombre: "DHL", archivo: "/couriers/dhl.png", ancho: 219, alto: 31, altoEnPantalla: 18, altoMovil: 12 },
+  { nombre: "FedEx", archivo: "/couriers/fedex.png", ancho: 261, alto: 80, altoEnPantalla: 28, altoMovil: 19 },
 ];
 
 /**
@@ -72,16 +77,21 @@ export function BandaCourier() {
               diseñadas.
 
               Las chapas no comparten ancho, sólo altura: con ancho fijo, DHL
-              quedaba comprimida y se dibujaba más chica que las otras dos. */}
+              quedaba comprimida y se dibujaba más chica que las otras dos.
+
+              En celular van en una sola línea (`flex-nowrap`) y por eso todo se
+              achica: la chapa, su relleno, el hueco entre chapas y los tres
+              logos. Con las medidas de escritorio, FedEx caía sola a una
+              segunda fila. */}
           <ul
             data-reveal
             style={{ transitionDelay: "90ms" }}
-            className="landing-reveal flex flex-wrap items-center gap-3 sm:gap-4"
+            className="landing-reveal flex flex-nowrap items-center gap-2 sm:flex-wrap sm:gap-4"
           >
-            {COURIERS.map(({ nombre, archivo, ancho, alto, altoEnPantalla }, i) => (
+            {COURIERS.map(({ nombre, archivo, ancho, alto, altoEnPantalla, altoMovil }, i) => (
               <li
                 key={nombre}
-                className="courier-chapa flex h-[74px] min-w-[104px] items-center justify-center rounded-2xl bg-white px-6 shadow-[0_12px_28px_-14px_rgba(0,0,0,0.45)]"
+                className="courier-chapa flex h-[56px] min-w-[60px] items-center justify-center rounded-2xl bg-white px-3 shadow-[0_12px_28px_-14px_rgba(0,0,0,0.45)] sm:h-[74px] sm:min-w-[104px] sm:px-6"
                 style={{ animationDelay: `${i * 1.1}s` }}
               >
                 <Image
@@ -89,8 +99,13 @@ export function BandaCourier() {
                   alt={nombre}
                   width={ancho}
                   height={alto}
-                  style={{ height: altoEnPantalla, width: "auto" }}
-                  className="object-contain"
+                  style={
+                    {
+                      "--logo-alto": `${altoEnPantalla}px`,
+                      "--logo-alto-movil": `${altoMovil}px`,
+                    } as React.CSSProperties
+                  }
+                  className="courier-logo object-contain"
                 />
               </li>
             ))}

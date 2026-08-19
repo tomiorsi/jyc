@@ -968,6 +968,20 @@ body::before {
   }
 }
 
+/* El alto de cada logo lo escribe el componente en dos variables, una por
+   tamaño de pantalla: son medidas hechas a ojo marca por marca, no una escala
+   que se pueda calcular. El ancho sale solo, para no deformar ninguno. */
+.courier-logo {
+  height: var(--logo-alto-movil);
+  width: auto;
+}
+
+@media (min-width: 640px) {
+  .courier-logo {
+    height: var(--logo-alto);
+  }
+}
+
 /*
  * El destello que cruza cada chapa. Es una banda de luz diagonal que pasa por
  * encima del logo cada tantos segundos, escalonada entre las tres para que se
