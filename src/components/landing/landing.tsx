@@ -19,6 +19,8 @@ import { Brand } from "@/components/brand";
 import { BandaCourier } from "@/components/landing/banda-courier";
 import { CarruselServicios } from "@/components/landing/carrusel-servicios";
 import { InstagramPosts } from "@/components/landing/instagram-posts";
+import { Contacto } from "@/components/landing/contacto";
+import { IconoWhatsApp } from "@/components/landing/icono-whatsapp";
 import { MapaOficina } from "@/components/landing/mapa-oficina";
 
 /**
@@ -309,18 +311,6 @@ function Contador({ hasta, sufijo = "" }: { hasta: number; sufijo?: string }) {
 /* ───────────────────────── Piezas compartidas ───────────────────────── */
 
 /**
- * El logotipo de WhatsApp. Va escrito acá y no sale de lucide porque la
- * librería no incluye marcas registradas.
- */
-function IconoWhatsApp({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={className}>
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
-    </svg>
-  );
-}
-
-/**
  * El contacto del sitio, fijo abajo a la derecha y siempre a mano.
  *
  * El verde es el de WhatsApp y queda igual en los dos temas: es el color de la
@@ -382,19 +372,41 @@ export function Landing() {
   return (
     <div ref={rootRef} className="relative min-h-screen overflow-x-clip">
       {/* ── Header ── */}
-      {/* Solo la marca, centrada. El contacto vive en el botón flotante de
-          WhatsApp, así que nada le compite al logo. La altura sigue siendo
-          h-16 porque el hero la descuenta. */}
+      {/* La marca, centrada, con la bajada institucional al lado: dice qué es
+          el estudio en el primer segundo, antes de que nadie llegue a leer el
+          resto de la página. El contacto sigue viviendo en el botón flotante
+          de WhatsApp, así que nada más le compite al logo acá arriba.
+
+          La altura pasó de h-16 a h-20 porque el logo creció (de "sm" a "lg");
+          el hero la descuenta en su propio cálculo, así que los dos números
+          tienen que moverse juntos. */}
       <header className="relative z-10">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-center px-5 sm:px-8">
-          <Brand size="sm" />
+        <div className="mx-auto flex h-20 max-w-6xl items-center justify-center gap-3 px-5 sm:px-8 sm:gap-4">
+          <Brand size="lg" />
+          {/* leading-[1.56] va en cada <p> y no en el div que los agrupa: la
+              utilidad `text-xs` trae su propio line-height incluido, puesto
+              directo en cada línea, y ese valor le gana al heredado del padre
+              —lo que se fija en el propio elemento siempre gana sobre lo
+              heredado—. A 12px por línea, 12 * 1.56 * 3 ≈ 56px de alto total,
+              lo mismo que mide el logo al lado. */}
+          <div>
+            <p className="text-[11px] font-extrabold uppercase leading-[1.56] tracking-wide text-foreground sm:text-xs">
+              Despachante de aduana
+            </p>
+            <p className="text-[11px] font-extrabold uppercase leading-[1.56] tracking-wide text-foreground sm:text-xs">
+              Asesoramiento en
+            </p>
+            <p className="text-[11px] font-extrabold uppercase leading-[1.56] tracking-wide text-foreground sm:text-xs">
+              Comercio exterior
+            </p>
+          </div>
         </div>
       </header>
 
       {/* ── Hero ── */}
       {/* El hero ocupa exactamente una pantalla: así la flecha del pie queda
           visible sin scrollear, que es lo único que le pide al visitante. */}
-      <section className="relative flex min-h-[calc(100dvh-4rem)] flex-col overflow-hidden">
+      <section className="relative flex min-h-[calc(100dvh-5rem)] flex-col overflow-hidden">
         <WorldRoutes className="absolute inset-0 h-full w-full" />
         <div
           aria-hidden
@@ -550,6 +562,8 @@ export function Landing() {
         </section>
 
         <MapaOficina />
+
+        <Contacto />
 
         <InstagramPosts />
 
