@@ -249,7 +249,7 @@ export function CarruselServicios() {
                   data-reveal
                   className="landing-reveal flex items-center gap-4"
                 >
-                  <h3 className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent-text">
+                  <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-accent-text">
                     {linea.nombre}
                   </h3>
                   <span aria-hidden className="h-px flex-1 bg-border" />
@@ -267,20 +267,20 @@ export function CarruselServicios() {
                       key={titulo}
                       data-reveal
                       style={{ "--retraso": `${i * 55}ms` } as React.CSSProperties}
-                      className="servicio-fila grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-3 border-b border-border/60 py-3 sm:grid-cols-[auto_minmax(0,0.85fr)_minmax(0,1.15fr)] sm:gap-x-6"
+                      className="servicio-fila grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-3 border-b border-border/60 py-4 sm:grid-cols-[auto_minmax(0,0.85fr)_minmax(0,1.15fr)] sm:gap-x-6"
                     >
-                      <span className="mt-0.5 font-mono text-[11px] font-semibold leading-6 tracking-[0.14em] text-muted/60">
+                      <span className="font-mono text-xs font-semibold leading-7 tracking-[0.14em] text-muted/60">
                         {String(numero).padStart(2, "0")}
                       </span>
 
-                      <h4 className="flex items-center gap-2.5 text-[15px] font-semibold leading-6 text-foreground">
+                      <h4 className="flex items-center gap-2.5 text-base font-semibold leading-7 text-foreground">
                         {/* Dos capas para el ícono: la caja lleva el flotar
                             continuo y el ícono el salto de entrada. Separadas
                             porque las dos animan la posición, y en un mismo
                             elemento la segunda le pisa el `transform` a la
                             primera. */}
                         <span aria-hidden className="servicio-icono-caja shrink-0">
-                          <Icon className="servicio-icono h-4 w-4" strokeWidth={1.9} />
+                          <Icon className="servicio-icono h-[18px] w-[18px]" strokeWidth={1.9} />
                         </span>
                         {titulo}
                       </h4>
@@ -293,7 +293,7 @@ export function CarruselServicios() {
                         data-reveal
                         className="servicio-definicion col-start-2 sm:col-start-3 sm:row-start-1"
                       >
-                        <p className="text-[13px] leading-relaxed text-muted">
+                        <p className="text-sm leading-relaxed text-muted">
                           {texto}
                         </p>
                       </div>
