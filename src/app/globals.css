@@ -1049,6 +1049,26 @@ body::before {
   }
 }
 
+/*
+ * En pantalla angosta el aparato desaparece y queda sólo el video: una franja
+ * de ancho completo apoyada contra la banda naranja. Se van el marco, el
+ * resplandor y la isla —un teléfono que ocupa todo el ancho de un teléfono no
+ * es un teléfono, es un video—, y de las cuatro puntas quedan redondeadas nada
+ * más que las de arriba, para que abajo la unión con la banda no tenga costura.
+ */
+@media (max-width: 1023px) {
+  .telefono-brillo,
+  .telefono-isla {
+    display: none;
+  }
+
+  .telefono-marco {
+    border: 0;
+    border-radius: 1.75rem 1.75rem 0 0;
+    box-shadow: none;
+  }
+}
+
 /* El resplandor naranja va en su propia capa, detrás y desenfocado sobre el
    fondo, y no como sombra de color del marco: una sombra coloreada saliendo de
    un borde negro no se lee como luz sino como un halo sucio. */

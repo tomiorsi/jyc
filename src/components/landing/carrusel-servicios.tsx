@@ -152,6 +152,25 @@ function TelefonoOperaciones() {
     const video = videoRef.current;
     if (!video) return;
 
+    /**
+     * En pantalla angosta va otro archivo.
+     *
+     * No alcanza con recortar el vertical: en una franja horizontal entra sólo
+     * una banda del medio, y esa banda le cae distinta a cada uno de los cuatro
+     * planos —al de proa lo deja en puro cielo, al del remolcador lo parte por
+     * la mitad—. El ancho está armado eligiendo el encuadre plano por plano.
+     *
+     * Cambiar el `src` acá no descarga nada de más: con `preload="none"` el
+     * navegador no toca ningún archivo hasta que alguien llama a `play()`, y
+     * para entonces ya está puesto el que corresponde. El vertical queda como
+     * valor por defecto en el HTML porque es el que sirve si esto no llega a
+     * correr, y en escritorio es además el correcto.
+     */
+    if (window.matchMedia("(max-width: 1023px)").matches) {
+      video.src = "/media/comex-loop-ancho.mp4";
+      video.poster = "/media/comex-loop-ancho-poster.jpg";
+    }
+
     // Quien pidió menos movimiento se queda con el póster, que es un cuadro del
     // propio video: la sección no pierde nada y no se descarga 1 MB de más.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -172,15 +191,26 @@ function TelefonoOperaciones() {
   }, []);
 
   return (
-    <div className="telefono relative mx-auto w-[186px] shrink-0 sm:w-[210px] lg:w-[236px]">
+    /* Dos formas para lo mismo.
+     *
+     * De `lg` para arriba es un teléfono de 236 px al costado de la lista. Más
+     * abajo las columnas se apilan y un teléfono chiquito abajo de todo no es
+     * nada: pasa a ser una franja de ancho completo y media pantalla de alto,
+     * apoyada contra la banda naranja que viene enseguida. Los márgenes
+     * negativos son los que la sacan de la caja con `px-5` de la sección.
+     */
+    <div className="telefono relative -mx-5 sm:-mx-8 lg:mx-auto lg:w-[236px] lg:shrink-0">
       {/* El resplandor no está en el marco sino detrás: el marco es negro y un
           box-shadow de color sobre negro se lee como suciedad, no como luz. */}
       <div aria-hidden className="telefono-brillo absolute inset-0" />
 
-      <div className="telefono-marco relative aspect-[9/19] w-full overflow-hidden">
+      <div className="telefono-marco relative h-[50dvh] w-full overflow-hidden lg:aspect-[9/19] lg:h-auto">
         <video
           ref={videoRef}
-          className="h-full w-full object-cover"
+          /* Los dos archivos vienen ya encuadrados para la forma en la que se
+             muestran, así que `cover` centrado sólo tiene que absorber la
+             diferencia entre un celular alto y uno corto. */
+          className="h-full w-full object-cover object-center"
           src="/media/comex-loop.mp4"
           poster="/media/comex-loop-poster.jpg"
           muted
@@ -220,7 +250,11 @@ function TelefonoOperaciones() {
 export function CarruselServicios() {
   return (
     <section id="servicios" className="relative">
-      <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
+      {/* Sin relleno abajo mientras las columnas van apiladas: la franja de
+          video tiene que apoyarse contra la banda naranja que viene enseguida,
+          sin ninguna luz entre las dos. De `lg` para arriba el teléfono vuelve
+          al costado y la sección recupera su aire. */}
+      <div className="mx-auto max-w-6xl px-5 pt-20 sm:px-8 sm:pt-28 lg:pb-28">
         {/* Es un `h2` y no un párrafo aunque se dibuje chico: es el título de
             la sección, y sin él la página salta de la `h1` del hero a las `h3`
             de cada línea. Ese hueco Google lo lee como una jerarquía rota, y un

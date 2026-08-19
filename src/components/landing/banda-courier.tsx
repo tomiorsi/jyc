@@ -28,6 +28,11 @@ const COURIERS = [
  * tres son muy tenues: la banda tiene que respirar, no destellar, y arriba
  * lleva texto que no puede competir con el fondo.
  *
+ * Las puntas de arriba van cuadradas mientras la pantalla es angosta: ahí
+ * la banda no arranca sola sino pegada a la franja de video de Servicios, y
+ * las dos son un solo bloque. Redondear las cuatro puntas dejaría una
+ * costura a la vista justo en la unión.
+ *
  * Antes había además un resplandor que seguía al cursor. Se fue: el efecto solo
  * existía para quien tuviera mouse —en celular, la mitad del tráfico, la banda
  * quedaba muerta— y obligaba a escuchar `pointermove` sobre un bloque enorme
@@ -37,7 +42,7 @@ export function BandaCourier() {
   return (
     <section
       id="courier"
-      className="courier-banda relative overflow-hidden rounded-3xl bg-[var(--banda-fondo)]"
+      className="courier-banda relative overflow-hidden rounded-b-3xl bg-[var(--banda-fondo)] lg:rounded-3xl"
     >
       {/* El remolino va primero y bien atrás: es el color moviéndose, y todo lo
           demás se apoya encima. */}
