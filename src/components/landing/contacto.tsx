@@ -42,7 +42,7 @@ async function copiarAlPortapapeles(texto: string) {
 /**
  * Un mail que se copia solo al tocarlo.
  *
- * En vez de un cartel flotante aparte, el propio botón cambia lo que dice: es
+ * En vez de un cartel flotante aparte, el propio texto cambia lo que dice: es
  * la confirmación más directa posible de que la copia fue justo esa dirección
  * y no otra cosa en la pantalla. Vuelve solo al estado original, sin que haga
  * falta cerrar nada.
@@ -69,11 +69,11 @@ function ChipEmail({ email, retraso }: { email: string; retraso: number }) {
       <button
         type="button"
         onClick={alTocar}
-        className="tarjeta-viva group flex h-full w-full flex-col gap-3 rounded-2xl border border-border/70 bg-surface p-5 text-left hover:border-accent/45 hover:shadow-[0_20px_44px_-28px_var(--ring)]"
+        className="group flex items-center gap-3 text-left"
       >
         <span
           aria-hidden
-          className="icono-salton inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent-soft text-accent-text"
+          className="icono-salton inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-text"
         >
           {copiado ? <Check className="h-5 w-5" /> : <Mail className="h-5 w-5" />}
         </span>
@@ -81,7 +81,7 @@ function ChipEmail({ email, retraso }: { email: string; retraso: number }) {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
             {copiado ? "Copiado" : "Mail"}
           </p>
-          <p className="mt-1 break-all text-base font-semibold text-foreground">
+          <p className="mt-1 break-all text-base font-semibold text-foreground transition-colors group-hover:text-accent-text">
             {copiado ? "Ya lo tenés en el portapapeles" : email}
           </p>
         </div>
@@ -91,7 +91,8 @@ function ChipEmail({ email, retraso }: { email: string; retraso: number }) {
 }
 
 /**
- * La sección de contacto: los tres canales del estudio, en un solo lugar.
+ * La sección de contacto: los tres canales del estudio, sueltos sobre el
+ * fondo de la página, sin ninguna tarjeta que los agrupe.
  *
  * El WhatsApp redirige al chat porque ya tiene una intención clara —escribir
  * ahora—; los mails en cambio se copian, porque a un mail normalmente se le
@@ -101,47 +102,35 @@ export function Contacto() {
   return (
     <section id="contacto" className="relative">
       <div className="mx-auto max-w-6xl px-5 pb-20 sm:px-8 sm:pb-28">
-        <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-surface-2/60 px-6 py-12 sm:px-12 sm:py-16">
-          {/* Solo el rótulo, sin título ni bajada: los tres chips de abajo ya
-              dicen de qué se trata, y explicarlo primero era decir lo mismo
-              dos veces. */}
-          <p
-            data-reveal
-            className="landing-reveal text-xs font-semibold uppercase tracking-[0.2em] text-accent-text"
-          >
-            Contacto
-          </p>
-
-          <ul className="mt-10 grid gap-4 sm:grid-cols-3">
-            <li data-reveal className="landing-reveal">
-              <a
-                href={WHATSAPP}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="tarjeta-viva group flex h-full flex-col gap-3 rounded-2xl border border-border/70 bg-surface p-5 hover:border-accent/45 hover:shadow-[0_20px_44px_-28px_var(--ring)]"
+        <ul className="flex flex-wrap items-start gap-x-14 gap-y-8">
+          <li data-reveal className="landing-reveal">
+            <a
+              href={WHATSAPP}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="group flex items-center gap-3"
+            >
+              <span
+                aria-hidden
+                className="icono-salton inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-text"
               >
-                <span
-                  aria-hidden
-                  className="icono-salton inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent-soft text-accent-text"
-                >
-                  <IconoWhatsApp className="h-5 w-5" />
-                </span>
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-                    WhatsApp
-                  </p>
-                  <p className="mt-1 text-base font-semibold text-foreground">
-                    {NUMERO_VISIBLE}
-                  </p>
-                </div>
-              </a>
-            </li>
+                <IconoWhatsApp className="h-5 w-5" />
+              </span>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+                  WhatsApp
+                </p>
+                <p className="mt-1 text-base font-semibold text-foreground transition-colors group-hover:text-accent-text">
+                  {NUMERO_VISIBLE}
+                </p>
+              </div>
+            </a>
+          </li>
 
-            {EMAILS.map((email, i) => (
-              <ChipEmail key={email} email={email} retraso={(i + 1) * 90} />
-            ))}
-          </ul>
-        </div>
+          {EMAILS.map((email, i) => (
+            <ChipEmail key={email} email={email} retraso={(i + 1) * 90} />
+          ))}
+        </ul>
       </div>
     </section>
   );
