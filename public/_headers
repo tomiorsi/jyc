@@ -10,11 +10,15 @@
 # medios (no hay sección de noticias). El único recurso de terceros son los reels
 # de la landing, que renderizan en un iframe de instagram.com.
 #
+# `media-src 'self'` está escrito aunque `default-src` ya lo cubriría: el video
+# de la sección de servicios se sirve desde acá mismo, y dejarlo explícito evita
+# que alguien afloje `default-src` sin darse cuenta de qué más estaba tapando.
+#
 # El mapa NO figura acá: se dibuja con geometría propia, no con un iframe de
 # Google, así que no necesita permiso de nada.
 
 /*
-  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: blob:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; frame-src 'self' https://www.instagram.com; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: blob:; media-src 'self'; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; frame-src 'self' https://www.instagram.com; upgrade-insecure-requests
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()

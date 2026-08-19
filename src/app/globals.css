@@ -848,52 +848,6 @@ body::before {
   }
 }
 
-/* ─────────────────── El sello del estudio ───────────────────
- * Va inclinado, como un sello puesto a mano y no un logo alineado a la grilla.
- * El aro de texto gira despacio; el centro queda quieto, porque el número es
- * el dato y tiene que poder leerse.
- */
-.sello {
-  transform: rotate(-7deg);
-}
-
-.sello-trazo {
-  stroke: color-mix(in srgb, var(--accent) 55%, transparent);
-}
-
-.sello-leyenda,
-.sello-pie {
-  fill: color-mix(in srgb, var(--accent-text) 85%, transparent);
-  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-  font-weight: 600;
-}
-
-.sello-cifra {
-  fill: var(--accent-text);
-  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-}
-
-/* El giro se aplica sobre el grupo del texto, con el origen en el centro del
-   dibujo: sin `transform-box: fill-box` el navegador rota alrededor del origen
-   del SVG y la leyenda se va de la pantalla. */
-.sello-giro {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: sello-girar 34s linear infinite;
-}
-
-@keyframes sello-girar {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sello-giro {
-    animation: none;
-  }
-}
-
 /* ─────────────────── Banda de couriers ───────────────────
  * La sección corta la página a propósito: fondo sólido, todo el ancho, para
  * que se registre como una parada y no como una tarjeta más. Estas dos capas
@@ -928,16 +882,20 @@ body::before {
  */
 .courier-remolino {
   inset: -75%;
+  /* Los blancos están muy por debajo de lo que pedía el efecto original (34 % y
+     22 %): a esta escala, una franja blanca al 34 % sobre el naranja deja una
+     mancha lavada que ocupa medio bloque y le come el contraste al título. Los
+     cálidos cargan casi todo el movimiento; el blanco solo levanta el brillo. */
   background: conic-gradient(
     from 0deg,
     transparent 0deg,
-    color-mix(in srgb, #fff 34%, transparent) 35deg,
+    color-mix(in srgb, #fff 11%, transparent) 35deg,
     transparent 85deg,
-    color-mix(in srgb, #ffc978 42%, transparent) 145deg,
+    color-mix(in srgb, #ffc978 26%, transparent) 145deg,
     transparent 200deg,
-    color-mix(in srgb, #fff 22%, transparent) 260deg,
+    color-mix(in srgb, #fff 7%, transparent) 260deg,
     transparent 310deg,
-    color-mix(in srgb, #ef6b1f 34%, transparent) 340deg,
+    color-mix(in srgb, #ef6b1f 30%, transparent) 340deg,
     transparent 360deg
   );
   filter: blur(46px);
@@ -951,23 +909,7 @@ body::before {
   }
 }
 
-/*
- * El resplandor que sigue al cursor. Las coordenadas las escribe el componente
- * en `--raton-x` / `--raton-y`; los valores de acá son la posición de descanso,
- * que es también la que queda si el JavaScript no llega a correr.
- *
- * No lleva `transition`: el movimiento ya sale parejo porque el componente
- * escribe como mucho un valor por cuadro, y encadenar además una transición
- * sobre el degradado dejaría al resplandor arrastrándose detrás del cursor.
- */
-/* Los valores de descanso van en la banda y no en `.courier-aura`, que es
-   quien los consume: una variable declarada en el propio elemento le gana
-   siempre a la heredada, así que definirlos ahí abajo hacía que el aura
-   ignorara por completo lo que el componente escribe en la sección. */
 .courier-banda {
-  --raton-x: 50%;
-  --raton-y: 50%;
-
   /* Un naranja propio, más claro que el de la marca: el acento puro resultaba
      demasiado fuerte para un bloque de este tamaño.
      El texto pasa a ser oscuro y no blanco. No es sólo estético: blanco sobre
@@ -985,16 +927,43 @@ body::before {
   --banda-texto: #ffe8d5;
 }
 
-.courier-aura {
+/*
+ * La luz que recorre la banda de lado a lado.
+ *
+ * Reemplaza al resplandor que seguía al cursor: hace lo mismo —levantar el
+ * naranja por zonas, para que no se lea como un rectángulo de color plano—
+ * pero sola, así también existe en celular, donde no hay cursor que seguir.
+ *
+ * Va muy lavada, al 12 %. La versión anterior estaba al 32 % y sobre un bloque
+ * de este tamaño eso no se lee como luz sino como una mancha blanca.
+ *
+ * El degradado queda quieto y lo que se mueve es la capa entera con
+ * `transform`, que el compositor resuelve sin repintar el degradado en cada
+ * cuadro. `alternate` es lo que la hace ir y volver en vez de saltar al inicio.
+ */
+.courier-vaiven {
+  pointer-events: none;
   background: radial-gradient(
-    380px circle at var(--raton-x) var(--raton-y),
-    color-mix(in srgb, #fff 32%, transparent),
-    transparent 70%
+    46% 130% at 50% 50%,
+    color-mix(in srgb, #fff 12%, transparent),
+    transparent 72%
   );
+  animation: courier-vaiven 24s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes courier-vaiven {
+  from {
+    transform: translateX(-42%);
+  }
+  to {
+    transform: translateX(42%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .courier-remolino {
+  .courier-remolino,
+  .courier-vaiven {
     animation: none;
   }
 }
@@ -1054,5 +1023,215 @@ body::before {
   .courier-chapa::after {
     animation: none;
     opacity: 0;
+  }
+}
+
+
+/* ─────────────────── El teléfono de la sección de servicios ───────────────────
+ * Un video vertical con las puntas redondeadas se lee como una tarjeta. Lo que
+ * lo convierte en un teléfono son estas cuatro cosas: el marco negro grueso, el
+ * resplandor de atrás, la isla de la cámara y el reflejo del vidrio.
+ */
+
+.telefono-marco {
+  border-radius: 2.4rem;
+  border: 5px solid #0b0d11;
+  background: #0b0d11;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--foreground) 22%, transparent),
+    0 34px 70px -30px rgba(0, 0, 0, 0.75);
+}
+
+@media (min-width: 1024px) {
+  .telefono-marco {
+    border-radius: 2.9rem;
+    border-width: 7px;
+  }
+}
+
+/* El resplandor naranja va en su propia capa, detrás y desenfocado sobre el
+   fondo, y no como sombra de color del marco: una sombra coloreada saliendo de
+   un borde negro no se lee como luz sino como un halo sucio. */
+.telefono-brillo {
+  pointer-events: none;
+  border-radius: 3rem;
+  background: radial-gradient(
+    60% 50% at 50% 60%,
+    color-mix(in srgb, var(--accent) 40%, transparent),
+    transparent 70%
+  );
+  filter: blur(38px);
+  transform: scale(0.92);
+}
+
+/* La isla de la cámara. Las medidas van en porcentaje del teléfono para que no
+   se desarme cuando el aparato cambia de tamaño entre móvil y escritorio. */
+.telefono-isla {
+  position: absolute;
+  top: 2.6%;
+  left: 50%;
+  translate: -50% 0;
+  height: 1.55%;
+  min-height: 9px;
+  width: 26%;
+  border-radius: 9999px;
+  background: #05070a;
+}
+
+/* El reflejo del vidrio: una diagonal clara y muy tenue sobre la esquina de
+   arriba. Es lo que hace que la pantalla parezca tener vidrio encima. */
+.telefono-vidrio {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    118deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.05) 26%,
+    transparent 46%
+  );
+}
+
+/* ─────────────────── Lista de servicios ───────────────────
+ * Los títulos en una columna y la definición al lado. Todo lo de acá se
+ * enciende con el mismo `data-reveal` del resto de la landing, que agrega
+ * `.is-visible` cuando el elemento cruza el 94 % del alto de la ventana: la
+ * fila entra, el ícono salta y la definición se abre, en ese orden y sin que
+ * haya que apretar nada.
+ *
+ * `--retraso` lo escribe el componente por fila y lo heredan las tres cosas,
+ * para que las filas que aparecen juntas lo hagan escalonadas.
+ */
+
+.servicio-fila {
+  opacity: 0;
+  /* `translate` y no `transform`: el ícono de adentro usa `transform` para su
+     salto, y son propiedades distintas que se componen en vez de pisarse. */
+  translate: -18px 0;
+  transition:
+    opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1) var(--retraso, 0ms),
+    translate 0.7s cubic-bezier(0.16, 1, 0.3, 1) var(--retraso, 0ms);
+}
+
+.servicio-fila.is-visible {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* De `0fr` a `1fr`: es la única forma de animar «hasta el alto que necesite el
+   texto» sin ir a medirlo a JavaScript. El hijo lleva el `overflow: hidden`,
+   que es lo que recorta el párrafo mientras la fila todavía no terminó de
+   abrirse. */
+.servicio-definicion {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.6s cubic-bezier(0.16, 1, 0.3, 1) var(--retraso, 0ms),
+    opacity 0.5s ease calc(var(--retraso, 0ms) + 0.12s);
+}
+
+.servicio-definicion > * {
+  overflow: hidden;
+}
+
+.servicio-definicion.is-visible {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+/*
+ * El ícono, en dos capas.
+ *
+ * La caja flota despacio y para siempre —un par de píxeles arriba y abajo—, y
+ * cada una arranca en un momento distinto por el `--retraso`, así la columna
+ * respira en vez de latir toda junta. El ícono de adentro hace el salto de
+ * entrada cuando su fila aparece.
+ *
+ * Van separados porque las dos animaciones mueven al elemento y en un mismo
+ * nodo la de adentro le gana a la de afuera: el flotar desaparecería.
+ */
+.servicio-icono-caja {
+  display: inline-flex;
+  animation: servicio-flotar 4.6s ease-in-out var(--retraso, 0ms) infinite;
+}
+
+@keyframes servicio-flotar {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -2.5px;
+  }
+}
+
+/* Apagado y gris hasta que llega su turno: una columna de doce acentos naranjas
+   encendidos de entrada no deja ver dónde está parado el que va bajando. */
+.servicio-icono {
+  color: var(--muted);
+  opacity: 0.4;
+  transition:
+    color 0.5s ease var(--retraso, 0ms),
+    opacity 0.5s ease var(--retraso, 0ms),
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.servicio-fila.is-visible .servicio-icono {
+  color: var(--accent);
+  opacity: 1;
+  /* Sin `fill-mode`: al terminar, el ícono vuelve a su transform natural —que
+     es el mismo del 100 %— y así el hover de abajo puede volver a moverlo. Con
+     `both`, la animación se lo quedaría para siempre. */
+  animation: servicio-icono-entra 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)
+    var(--retraso, 0ms);
+}
+
+@keyframes servicio-icono-entra {
+  0% {
+    transform: scale(0.35) rotate(-35deg);
+  }
+  55% {
+    transform: scale(1.2) rotate(9deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.servicio-fila:hover .servicio-icono {
+  transform: scale(1.2) rotate(-8deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .servicio-fila,
+  .servicio-fila:hover .servicio-icono,
+  .servicio-definicion,
+  .servicio-icono {
+    transition: none;
+    translate: none;
+    transform: none;
+  }
+
+  /* Sin animación no puede quedar nada escondido para siempre: la fila y su
+     definición se muestran desde el arranque, y los íconos ni saltan ni
+     flotan. */
+  .servicio-fila {
+    opacity: 1;
+  }
+
+  .servicio-definicion {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  .servicio-icono-caja,
+  .servicio-fila.is-visible .servicio-icono {
+    animation: none;
+  }
+
+  .servicio-fila.is-visible .servicio-icono {
+    color: var(--accent);
+    opacity: 1;
   }
 }

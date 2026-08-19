@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { DatosEstructurados } from "@/components/datos-estructurados";
+import { DESCRIPCION, SITIO } from "./seo";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,10 +14,78 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+/**
+ * Lo que Google y las redes leen de esta página.
+ *
+ * `metadataBase` es la que convierte las rutas relativas de acá abajo en URLs
+ * absolutas. Sin ella, la imagen de `openGraph` se publica como `/media/og.jpg`
+ * —una ruta que fuera del sitio no apunta a ninguna parte— y WhatsApp, LinkedIn
+ * y X muestran el enlace pelado, sin ficha.
+ *
+ * El título lleva las tres palabras con las que alguien busca esto en Google
+ * —despachante, aduana, Buenos Aires— y no sólo el nombre del estudio: nadie
+ * que todavía no lo conoce busca «J&C Comex».
+ */
 export const metadata: Metadata = {
-  title: "J&C Comex · Despachantes de Aduana",
-  description:
-    "Estudio de despachantes de aduana. Importación y exportación gestionadas de punta a punta.",
+  metadataBase: new URL(SITIO.dominio),
+  title: {
+    default: "Despachante de Aduana en Buenos Aires · J&C Comex",
+    // Para cuando haya más páginas: cada una pone su nombre y hereda la marca.
+    template: "%s · J&C Comex",
+  },
+  description: DESCRIPCION,
+  applicationName: SITIO.nombre,
+  authors: [{ name: SITIO.nombre }],
+  creator: SITIO.nombre,
+  publisher: SITIO.nombre,
+  category: "Comercio exterior",
+  /**
+   * La canónica evita que el sitio compita consigo mismo. Sin ella, Google
+   * puede indexar `www.` y sin `www.`, con y sin barra final, como si fueran
+   * páginas distintas con el mismo contenido, y reparte entre todas la
+   * autoridad que debería ir a una sola.
+   */
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "es_AR",
+    url: "/",
+    siteName: SITIO.nombreLargo,
+    title: "Despachantes de Aduana en Buenos Aires · J&C Comex",
+    description: DESCRIPCION,
+    images: [
+      {
+        url: "/media/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "J&C Comex, despachantes de aduana: un remolcador junto a un buque portacontenedores",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Despachantes de Aduana en Buenos Aires · J&C Comex",
+    description: DESCRIPCION,
+    images: ["/media/og.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      // Sin techo en el largo del fragmento ni en el tamaño de la miniatura:
+      // por defecto Google recorta ambos, y acá no hay nada que esconder.
+      "max-snippet": -1,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+    },
+  },
+  // El teléfono se detecta solo en iOS y Safari le pinta encima al número un
+  // enlace azul que se pelea con la tipografía del sitio.
+  formatDetection: { telephone: false, address: false, email: false },
 };
 
 export default function RootLayout({
@@ -25,7 +95,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="es"
+      lang="es-AR"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
@@ -47,6 +117,7 @@ export default function RootLayout({
             __html: `(function(){try{if(localStorage.getItem("tema")==="oscuro"){document.documentElement.classList.add("dark")}}catch(e){}})()`,
           }}
         />
+        <DatosEstructurados />
       </head>
       <body className="min-h-full">{children}</body>
     </html>

@@ -14,3 +14,9 @@ next-env.d.ts
 # cada deploy y `.wrangler/state` guarda estado local de la máquina.
 /.open-next/
 /.wrangler/
+
+# Los cuatro videos originales de puerto, tal como llegaron por WhatsApp: 27 MB
+# de material en bruto del que sale `public/media/comex-loop.mp4`, que pesa 1 MB
+# y es lo único que se publica. En `source/videos/README.md` está el comando que
+# los recorta y los une, por si hay que rehacerlo.
+/source/

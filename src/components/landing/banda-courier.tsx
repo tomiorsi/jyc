@@ -1,6 +1,3 @@
-"use client";
-
-import { useEffect, useRef } from "react";
 import Image from "next/image";
 
 /**
@@ -26,63 +23,27 @@ const COURIERS = [
  * La banda de couriers: corta la superficie continua de la página a propósito,
  * como una parada en medio del recorrido.
  *
- * El naranja no es plano. Encima corren tres capas —la trama de puntos, un
- * remolino de color que gira, y un resplandor que sigue al mouse— para que el
- * bloque tenga movimiento propio sin que nada de eso le compita al texto.
+ * El naranja no es plano. Encima corren dos capas —la trama de puntos y un
+ * remolino de color que gira— más una luz que va y viene de lado a lado. Las
+ * tres son muy tenues: la banda tiene que respirar, no destellar, y arriba
+ * lleva texto que no puede competir con el fondo.
+ *
+ * Antes había además un resplandor que seguía al cursor. Se fue: el efecto solo
+ * existía para quien tuviera mouse —en celular, la mitad del tráfico, la banda
+ * quedaba muerta— y obligaba a escuchar `pointermove` sobre un bloque enorme
+ * para mover una luz que nadie estaba mirando.
  */
 export function BandaCourier() {
-  const cajaRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const caja = cajaRef.current;
-    if (!caja) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    let pedido = 0;
-    let x = 0;
-    let y = 0;
-
-    const pintar = () => {
-      pedido = 0;
-      caja.style.setProperty("--raton-x", `${x}%`);
-      caja.style.setProperty("--raton-y", `${y}%`);
-    };
-
-    const alMover = (e: PointerEvent) => {
-      const r = caja.getBoundingClientRect();
-      x = ((e.clientX - r.left) / r.width) * 100;
-      y = ((e.clientY - r.top) / r.height) * 100;
-      if (!pedido) pedido = requestAnimationFrame(pintar);
-    };
-
-    // Al salir vuelve al centro en vez de quedarse clavado donde estaba el
-    // cursor: si no, el resplandor queda pegado a un costado sin motivo.
-    const alSalir = () => {
-      x = 50;
-      y = 50;
-      if (!pedido) pedido = requestAnimationFrame(pintar);
-    };
-
-    caja.addEventListener("pointermove", alMover);
-    caja.addEventListener("pointerleave", alSalir);
-    return () => {
-      cancelAnimationFrame(pedido);
-      caja.removeEventListener("pointermove", alMover);
-      caja.removeEventListener("pointerleave", alSalir);
-    };
-  }, []);
-
   return (
     <section
-      ref={cajaRef}
       id="courier"
       className="courier-banda relative overflow-hidden rounded-3xl bg-[var(--banda-fondo)]"
     >
       {/* El remolino va primero y bien atrás: es el color moviéndose, y todo lo
           demás se apoya encima. */}
       <div aria-hidden className="courier-remolino absolute" />
+      <div aria-hidden className="courier-vaiven absolute inset-0" />
       <div aria-hidden className="courier-textura absolute inset-0" />
-      <div aria-hidden className="courier-aura pointer-events-none absolute inset-0" />
 
       <div className="relative mx-auto max-w-6xl px-5 py-12 sm:px-8 sm:py-14">
         <div className="grid items-center gap-8 lg:grid-cols-[1fr_auto] lg:gap-16">

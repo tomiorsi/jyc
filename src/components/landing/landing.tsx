@@ -2,32 +2,22 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
-  ArrowLeftRight,
   ArrowRight,
-  BadgeCheck,
-  Calculator,
   Car,
   ChevronDown,
   Cpu,
   Factory,
-  FileText,
   FlaskConical,
-  Handshake,
-  Landmark,
   Plane,
-  Receipt,
-  Scale,
-  Search,
   Shirt,
   ShoppingBag,
   Ship,
-  Tags,
   Truck,
   UtensilsCrossed,
-  Warehouse,
 } from "lucide-react";
 import { Brand } from "@/components/brand";
 import { BandaCourier } from "@/components/landing/banda-courier";
+import { CarruselServicios } from "@/components/landing/carrusel-servicios";
 import { InstagramPosts } from "@/components/landing/instagram-posts";
 import { MapaOficina } from "@/components/landing/mapa-oficina";
 
@@ -226,96 +216,12 @@ function TransportOrb() {
 
 /* ───────────────────────── Datos de las secciones ───────────────────────── */
 
-/** Cada tarjeta de servicio o de rubro: un ícono, un nombre y qué implica. */
+/** Cada tarjeta de rubro: un ícono, un nombre y qué implica. */
 type Item = {
   Icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
   titulo: string;
   texto: string;
 };
-
-/**
- * Las dos líneas de trabajo del estudio. La separación no es decorativa: son
- * dos servicios que se contratan por separado y a públicos distintos —el
- * despacho lo necesita todo el que importa; el agente de compras, solo el que
- * además quiere que le busquen el proveedor—.
- */
-const LIBERACIONES: Item[] = [
-  {
-    Icon: ArrowLeftRight,
-    titulo: "Importación y exportación",
-    texto:
-      "El proceso completo, de la apertura del legajo a la liberación de la mercadería.",
-  },
-  {
-    Icon: Tags,
-    titulo: "Clasificación arancelaria",
-    texto:
-      "Definimos la posición NCM de cada producto y la sostenemos con la documentación técnica.",
-  },
-  {
-    Icon: FileText,
-    titulo: "Documentación aduanera",
-    texto:
-      "Armamos y presentamos el legajo: factura, packing list, transporte, certificados y permisos.",
-  },
-  {
-    Icon: Landmark,
-    titulo: "Representación aduanera",
-    texto:
-      "Actuamos en tu nombre ante la Aduana y resolvemos las observaciones que aparezcan.",
-  },
-  {
-    Icon: Scale,
-    titulo: "Asesoría en Incoterms",
-    texto:
-      "Elegimos con vos el término que mejor reparte costos y riesgos en cada operación.",
-  },
-  {
-    Icon: Receipt,
-    titulo: "Gestión de pagos aduaneros",
-    texto:
-      "Liquidamos derechos, tasas e impuestos, y emitimos los VEP a tiempo.",
-  },
-  {
-    Icon: Warehouse,
-    titulo: "Control de inventarios",
-    texto:
-      "Mercadería en depósito fiscal y zona franca, con el stock conciliado contra lo declarado.",
-  },
-  {
-    Icon: Calculator,
-    titulo: "Costeo y factibilidad",
-    texto:
-      "El costo puesto en tu depósito, calculado antes de que compres.",
-  },
-];
-
-const COMPRAS: Item[] = [
-  {
-    Icon: Search,
-    titulo: "Búsqueda de proveedores",
-    texto:
-      "Proveedores en origen, evaluados con referencias y muestras antes de avanzar.",
-  },
-  {
-    Icon: Handshake,
-    titulo: "Negociación de contratos",
-    texto:
-      "Precio, plazo y garantía cerrados para que un incumplimiento no te deje sin respaldo.",
-  },
-  {
-    Icon: Ship,
-    titulo: "Logística internacional",
-    texto:
-      "Elegimos la vía que mejor equilibra costo y tiempo, y coordinamos el transporte.",
-  },
-  {
-    Icon: BadgeCheck,
-    titulo: "Auditoría de proveedores",
-    texto:
-      "Inspección de calidad en origen, antes del embarque y no cuando ya llegó.",
-  },
-];
 
 /** Rubros con los que el estudio ya trabajó. Cada uno tiene su propia vuelta. */
 const RUBROS: Item[] = [
@@ -400,68 +306,6 @@ function Contador({ hasta, sufijo = "" }: { hasta: number; sufijo?: string }) {
   );
 }
 
-/**
- * El sello del estudio.
- *
- * Un despachante vive de sellar: es el gesto más reconocible del oficio, y
- * traerlo a la página dice «veinte años de esto» mejor que otra tarjeta con
- * texto. El aro exterior gira despacio; el centro queda quieto para que el
- * número se pueda leer.
- */
-function Sello() {
-  return (
-    <div className="sello relative aspect-square w-[230px] sm:w-[260px]">
-      <svg viewBox="0 0 200 200" className="h-full w-full" role="img" aria-label="J&C Comex, más de 20 años">
-        <defs>
-          {/* El aro sobre el que corre el texto. Va por dentro de los bordes
-              para que las letras no toquen las circunferencias. */}
-          <path
-            id="sello-aro"
-            d="M 100,100 m -74,0 a 74,74 0 1,1 148,0 a 74,74 0 1,1 -148,0"
-            fill="none"
-          />
-        </defs>
-
-        <g className="sello-trazo" fill="none">
-          <circle cx="100" cy="100" r="94" strokeWidth="1.5" />
-          <circle cx="100" cy="100" r="86" strokeWidth="3" />
-          <circle cx="100" cy="100" r="56" strokeWidth="1.5" strokeDasharray="3 4" />
-        </g>
-
-        <g className="sello-giro">
-          <text className="sello-leyenda" fontSize="11" letterSpacing="2">
-            <textPath href="#sello-aro" startOffset="0%">
-              J&amp;C COMEX · DESPACHANTES DE ADUANA · BUENOS AIRES ·
-            </textPath>
-          </text>
-        </g>
-
-        <text
-          className="sello-cifra"
-          x="100"
-          y="99"
-          textAnchor="middle"
-          fontSize="42"
-          fontWeight="800"
-        >
-          +20
-        </text>
-        <text
-          className="sello-pie"
-          x="100"
-          y="120"
-          textAnchor="middle"
-          fontSize="11"
-          letterSpacing="4.5"
-          fontWeight="600"
-        >
-          AÑOS
-        </text>
-      </svg>
-    </div>
-  );
-}
-
 /* ───────────────────────── Piezas compartidas ───────────────────────── */
 
 /**
@@ -526,47 +370,6 @@ function TituloSeccion({
       </h2>
       {children}
     </div>
-  );
-}
-
-/**
- * Título de una línea de servicio, con la regla que se apaga hacia la derecha.
- * La regla marca dónde empieza cada bloque sin cortar la página en dos, que es
- * justo lo que hacían los bordes de sección que había antes.
- */
-function TituloBloque({ children }: { children: React.ReactNode }) {
-  return (
-    <div data-reveal className="landing-reveal flex items-center gap-4">
-      <h3 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
-        {children}
-      </h3>
-      <span
-        aria-hidden
-        className="regla-bloque h-px flex-1 bg-gradient-to-r from-accent/50 to-transparent"
-      />
-    </div>
-  );
-}
-
-/**
- * Tarjeta de servicio. Translúcida a propósito: el fondo de la página tiene
- * que verse por detrás, si no vuelve a leerse como un bloque aparte.
- */
-function Tarjeta({ Icon, titulo, texto, retraso }: Item & { retraso: number }) {
-  return (
-    <li
-      data-reveal
-      style={{ transitionDelay: `${retraso}ms` }}
-      className="landing-reveal tarjeta-viva group flex gap-4 rounded-2xl border border-border/70 bg-surface/80 p-5 hover:border-accent/45 hover:shadow-[0_20px_44px_-28px_var(--ring)]"
-    >
-      <span className="icono-salton mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-text">
-        <Icon className="h-5 w-5" strokeWidth={1.8} />
-      </span>
-      <div>
-        <h4 className="text-[15px] font-semibold text-foreground">{titulo}</h4>
-        <p className="mt-1.5 text-sm leading-relaxed text-muted">{texto}</p>
-      </div>
-    </li>
   );
 }
 
@@ -645,12 +448,12 @@ export function Landing() {
         {/* Invitación a seguir bajando: es lo único que pedimos en esta pantalla. */}
         <div data-reveal className="landing-reveal relative flex shrink-0 justify-center pb-8">
           <a
-            href="#nosotros"
-            aria-label="Conocer el estudio"
+            href="#servicios"
+            aria-label="Ver los servicios del estudio"
             className="group flex flex-col items-center gap-2 text-muted transition-colors hover:text-accent"
           >
             <span className="text-xs font-medium uppercase tracking-[0.2em]">
-              Conocenos
+              Qué hacemos
             </span>
             <ChevronDown className="landing-flecha h-10 w-10" strokeWidth={1.5} />
           </a>
@@ -679,77 +482,7 @@ export function Landing() {
           />
         </div>
 
-        {/* ── Nosotros ── */}
-        <section id="nosotros" className="relative">
-          <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
-            <div className="grid items-center gap-12 lg:grid-cols-[1.15fr_auto] lg:gap-20">
-              <div>
-                <TituloSeccion
-                  rotulo="Nosotros"
-                  titulo={
-                    <>
-                      Más de <span className="text-accent-text">20 años</span>{" "}
-                      despachando para PyMEs
-                    </>
-                  }
-                />
-                <div
-                  data-reveal
-                  className="landing-reveal mt-6 space-y-4 text-base leading-relaxed text-muted"
-                >
-                  <p>
-                    En todo ese tiempo construimos una reputación que se apoya en dos
-                    cosas simples: hacer lo que decimos y avisar a tiempo cuando algo
-                    cambia.
-                  </p>
-                  <p>
-                    La normativa se mueve, los plazos aprietan y cada operación tiene su
-                    vuelta. Nos hacemos cargo del trámite y te lo contamos en castellano,
-                    sin que tengas que aprender de aduana para saber en qué anda tu carga.
-                  </p>
-                </div>
-              </div>
-
-              <div data-reveal className="landing-reveal flex justify-center lg:justify-end">
-                <Sello />
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        {/* ── Servicios ── */}
-        <section id="servicios" className="relative">
-          <div className="mx-auto max-w-6xl px-5 pb-20 sm:px-8 sm:pb-28">
-            {/* Solo el rótulo, sin título ni bajada: los dos nombres de línea
-                que vienen abajo ya dicen de qué se trata, y repetirlo arriba
-                era decir lo mismo tres veces. */}
-            <p
-              data-reveal
-              className="landing-reveal text-xs font-semibold uppercase tracking-[0.2em] text-accent-text"
-            >
-              Servicios
-            </p>
-
-            <div className="mt-8">
-              <TituloBloque>Liberaciones aduaneras</TituloBloque>
-              <ul className="mt-6 grid gap-4 sm:grid-cols-2">
-                {LIBERACIONES.map((item, i) => (
-                  <Tarjeta key={item.titulo} {...item} retraso={i * 60} />
-                ))}
-              </ul>
-            </div>
-
-            <div className="mt-16">
-              <TituloBloque>Agente de compras internacionales</TituloBloque>
-              <ul className="mt-6 grid gap-4 sm:grid-cols-2">
-                {COMPRAS.map((item, i) => (
-                  <Tarjeta key={item.titulo} {...item} retraso={i * 60} />
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
+        <CarruselServicios />
 
         <BandaCourier />
 

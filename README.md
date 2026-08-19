@@ -14,14 +14,15 @@ mismos componentes. Lo único que cambia:
 
 ## ⚠️ Antes de publicar
 
-En `src/components/landing/landing.tsx`, arriba de todo:
+Todo lo que Google lee sale de `src/app/seo.ts`: el dominio, el teléfono, la
+dirección y las redes. **Confirmar que el dominio de ahí es el real** — de él
+salen la canónica, el `sitemap.xml`, el `robots.txt`, la ficha para compartir y
+los datos estructurados, y si apunta a otro lado Google indexa el sitio
+equivocado.
 
-```ts
-const CONTACTO = "https://wa.me/54900000000";
-```
-
-**Poner el WhatsApp o el mail real del estudio.** Es el destino de los dos
-botones de contacto.
+Después de publicar, dar de alta el sitio en Google Search Console y cargarle
+`https://<dominio>/sitemap.xml`: es lo que hace que Google pase en días en vez
+de en semanas.
 
 ## Correr
 
@@ -41,13 +42,22 @@ VPS. No hace falta un servidor Node corriendo.
 
 ```
 src/app/layout.tsx      fuentes, metadata y el script que aplica el tema
+src/app/seo.ts          dominio, dirección y teléfono — la fuente de todo el SEO
+src/app/sitemap.ts      sitemap.xml (se genera en el build)
+src/app/robots.ts       robots.txt (idem)
 src/app/page.tsx        renderiza <Landing />
 src/app/globals.css     los tokens y utilidades (idéntico al portal)
 src/components/brand.tsx
+src/components/datos-estructurados.tsx   el JSON-LD del estudio
 src/components/landing/
-  landing.tsx           hero, portal, proceso
-  world-routes.tsx      el mapa animado
+  landing.tsx              hero, rubros, pie
+  carrusel-servicios.tsx   los doce servicios y el teléfono con el video
+  banda-courier.tsx        la franja naranja
+  mapa-oficina.tsx         el plano de Monserrat
+  world-routes.tsx         el mapa animado del hero
   world-dots.ts
-  instagram-posts.tsx   los reels embebidos
-public/jc-logo.svg      claro y oscuro
+  instagram-posts.tsx      los reels embebidos
+public/jc-logo.svg         claro y oscuro
+public/media/              el loop de operaciones, su póster y la imagen de OG
+source/videos/             los originales de los que sale el loop (fuera de git)
 ```
